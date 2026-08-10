@@ -28,5 +28,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  // O app guarda respostas/progresso no dispositivo (localStorage), que não
+  // existe no servidor. Renderizar só após montar evita divergência de hidratação.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) {
+    return <div className="min-h-screen w-full bg-neutral-100" />;
+  }
   return <InstagramOrganizado />;
 }
