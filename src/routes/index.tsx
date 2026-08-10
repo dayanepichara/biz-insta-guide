@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import InstagramOrganizado from "@/components/InstagramOrganizado.jsx";
 
 export const Route = createFileRoute("/")({
