@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -385,6 +385,49 @@ const AREA_POR_PERGUNTA = {
       return copy;
     });
   }
+  /* -------- Botão "voltar" do celular/navegador navega entre as telas -------- */
+  const backNav = useRef({ depth: 0, ignore: 0 });
+  const goBackRef = useRef(goBack);
+  goBackRef.current = goBack;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    backNav.current.depth = 0;
+    try {
+      window.history.replaceState({ ioDepth: 0 }, "");
+    } catch (e) {}
+    function onPop() {
+      if (backNav.current.ignore > 0) {
+        backNav.current.ignore -= 1;
+        return;
+      }
+      if (backNav.current.depth > 0) {
+        backNav.current.depth -= 1;
+        goBackRef.current();
+      }
+    }
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const depth = history.length;
+    const prev = backNav.current.depth;
+    if (depth > prev) {
+      for (let i = prev; i < depth; i++) {
+        try {
+          window.history.pushState({ ioDepth: i + 1 }, "");
+        } catch (e) {}
+      }
+    } else if (depth < prev) {
+      backNav.current.ignore += prev - depth;
+      try {
+        window.history.go(-(prev - depth));
+      } catch (e) {
+        backNav.current.ignore = 0;
+      }
+    }
+    backNav.current.depth = depth;
+  }, [history.length]);
   function patchAnswers(patch) {
     setAnswers((a) => ({ ...a, ...patch }));
   }
