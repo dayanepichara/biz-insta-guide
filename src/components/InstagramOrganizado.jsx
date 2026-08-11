@@ -18,6 +18,21 @@ import {
   ChevronDown,
   MessageCircle,
 } from "lucide-react";
+import {
+  DEFAULT_M2,
+  MODULE2_STEPS,
+  M2Intro,
+  M2Pilares,
+  M2Periodo,
+  M2DataNegocio,
+  M2DatasComerciais,
+  M2Formatos,
+  M2Frequencia,
+  M2Ideias,
+  M2Calendario,
+  M2Final,
+} from "./Modulo2.jsx";
+
 /* ------------------------------------------------------------------ ARQUITETURA - answers + progress vivem num único fluxo de estado, com um "patch" central (patchAnswers / setProgress) — a persistência (safeLoad/safeSave/safeClear) só lê/escreve esse mesmo formato, então trocar de storage no futuro não exige mexer nas telas. - MODULE1_SECTIONS: config declarativa. Cada seção tem uma tela de entrada ("entry"). Seções sem "entry" ainda não foram construídas e aparecem como "Em breve" — novos módulos/seções entram como novos itens, sem mudar a navegação nem o hub. - screen + history: pilha simples (empilha ao avançar, desempilha no botão voltar). Também são persistidos. - STEP_GROUPS: mapeia cada sequência de telas para a barra de progresso, sem precisar de lógica especial por seção. ------------------------------------------------------------------- */ const FONT_DISPLAY =
   "'Manrope', system-ui, sans-serif";
 const FONT_BODY = "'Inter', system-ui, sans-serif";
@@ -49,29 +64,11 @@ const MODULE1_SECTIONS = [
   },
 ];
 const ONBOARDING_STEPS = ["welcome", "q1", "q2", "q3", "q4", "summary"];
-const NAMEAT_STEPS = [
-  "explainAt",
-  "explainNome",
-  "howto",
-  "interactive",
-  "feedback",
-];
+const NAMEAT_STEPS = ["explainAt", "explainNome", "howto", "interactive", "feedback"];
 const FOTO_STEPS = ["foto1", "foto2"];
-const BIO_STEPS = [
-  "bio1",
-  "bioStep1",
-  "bioStep2",
-  "bioStep3",
-  "bioStep4",
-  "bioResult",
-];
+const BIO_STEPS = ["bio1", "bioStep1", "bioStep2", "bioStep3", "bioStep4", "bioResult"];
 const LINK_STEPS = ["link1", "link2", "link3", "link4"];
-const DESTAQUES_STEPS = [
-  "destaques1",
-  "destaques2",
-  "destaques3",
-  "destaques4",
-];
+const DESTAQUES_STEPS = ["destaques1", "destaques2", "destaques3", "destaques4"];
 const REVISAO_STEPS = ["revisao1", "revisao2", "revisao3"];
 const STEP_GROUPS = [
   { steps: ONBOARDING_STEPS, label: (i, n) => `Etapa ${i + 1} de ${n}` },
@@ -93,7 +90,12 @@ const STEP_GROUPS = [
     steps: REVISAO_STEPS,
     label: (i, n) => `Revisão do perfil · Passo ${i + 1} de ${n}`,
   },
+  {
+    steps: MODULE2_STEPS,
+    label: (i, n) => `Estratégia de conteúdo · Passo ${i + 1} de ${n}`,
+  },
 ];
+
 const DEFAULT_ANSWERS = {
   negocio: "",
   oferece: "",
@@ -129,7 +131,9 @@ const DEFAULT_ANSWERS = {
   whatsappMsgSeeded: false,
   destaquesSelecionados: [],
   teste5s: { quem: "", oQue: "", paraQuem: "", comoComprar: "" },
+  m2: DEFAULT_M2,
 };
+
 const DEFAULT_PROGRESS = {
   nomeArroba: false,
   foto: false,
@@ -240,17 +244,14 @@ function linkTipByObjetivo(objetivo) {
   return mapa[objetivo] || "";
 }
 const WHATSAPP_MSG_TEMPLATES = {
-  "Receber pedidos no WhatsApp":
-    "Olá! Vim pelo Instagram e gostaria de fazer um pedido.",
+  "Receber pedidos no WhatsApp": "Olá! Vim pelo Instagram e gostaria de fazer um pedido.",
   "Vender produtos": "Olá! Vim pelo Instagram e gostaria de fazer um pedido.",
-  "Conseguir clientes":
-    "Olá! Vi seu perfil no Instagram e gostaria de solicitar um orçamento.",
+  "Conseguir clientes": "Olá! Vi seu perfil no Instagram e gostaria de solicitar um orçamento.",
   "Divulgar meu negócio":
     "Olá! Vi seu perfil no Instagram e queria saber mais sobre o seu trabalho.",
   "Ser mais conhecido na minha região":
     "Olá! Vi seu perfil no Instagram e queria saber mais sobre o seu trabalho.",
-  "Ainda não sei":
-    "Olá! Vi seu perfil no Instagram e gostaria de mais informações.",
+  "Ainda não sei": "Olá! Vi seu perfil no Instagram e gostaria de mais informações.",
 };
 function mensagemInicialSugerida(objetivo) {
   return (
@@ -276,14 +277,9 @@ function sugerirDestaques(negocio) {
   const n = (negocio || "").toLowerCase();
   const base = new Set(["Sobre", "Como comprar", "Depoimentos", "Contato"]);
   if (
-    [
-      "doce",
-      "comida",
-      "restaurante",
-      "marmita",
-      "lanchonete",
-      "confeitaria",
-    ].some((k) => n.includes(k))
+    ["doce", "comida", "restaurante", "marmita", "lanchonete", "confeitaria"].some((k) =>
+      n.includes(k),
+    )
   ) {
     base.add("Cardápio");
     base.add("Valores");
@@ -292,17 +288,11 @@ function sugerirDestaques(negocio) {
     base.add("Produtos ou Serviços");
     base.add("Valores");
   }
-  if (
-    ["clínic", "dentist", "saúde", "estétic", "consultóri"].some((k) =>
-      n.includes(k),
-    )
-  ) {
+  if (["clínic", "dentist", "saúde", "estétic", "consultóri"].some((k) => n.includes(k))) {
     base.add("Resultados");
     base.add("Dúvidas");
   }
-  if (
-    ["salão", "cabeleireir", "beleza", "barbearia"].some((k) => n.includes(k))
-  ) {
+  if (["salão", "cabeleireir", "beleza", "barbearia"].some((k) => n.includes(k))) {
     base.add("Resultados");
     base.add("Valores");
   }
@@ -318,13 +308,7 @@ const CONTEUDO_DESTAQUE = {
     "Principais produtos ou serviços",
     "Fotos ou vídeos curtos do que você oferece",
   ],
-  "Como comprar": [
-    "Como pedir",
-    "Formas de pagamento",
-    "Prazo",
-    "Entrega ou retirada",
-    "WhatsApp",
-  ],
+  "Como comprar": ["Como pedir", "Formas de pagamento", "Prazo", "Entrega ou retirada", "WhatsApp"],
   Depoimentos: [
     "Prints de clientes",
     "Vídeos curtos",
@@ -332,15 +316,8 @@ const CONTEUDO_DESTAQUE = {
     "Resultados",
     "Antes e depois, quando fizer sentido",
   ],
-  Resultados: [
-    "Fotos de trabalhos entregues",
-    "Números ou conquistas",
-    "Transformações",
-  ],
-  Dúvidas: [
-    "Perguntas frequentes",
-    "Respostas rápidas sobre prazo, garantia, forma de uso",
-  ],
+  Resultados: ["Fotos de trabalhos entregues", "Números ou conquistas", "Transformações"],
+  Dúvidas: ["Perguntas frequentes", "Respostas rápidas sobre prazo, garantia, forma de uso"],
   Localização: ["Endereço", "Mapa", "Ponto de referência", "Horário"],
   Horários: ["Dias e horários de atendimento", "Exceções em feriados"],
   Cardápio: ["Fotos dos itens", "Preços", "Promoções do dia"],
@@ -361,7 +338,9 @@ const AREA_POR_PERGUNTA = {
   const [answers, setAnswers] = useState({
     ...DEFAULT_ANSWERS,
     ...(persisted?.answers || {}),
+    m2: { ...DEFAULT_M2, ...(persisted?.answers?.m2 || {}) },
   });
+
   const [progress, setProgress] = useState({
     ...DEFAULT_PROGRESS,
     ...(persisted?.progress || {}),
@@ -434,6 +413,16 @@ const AREA_POR_PERGUNTA = {
   function setAnswer(key, value) {
     patchAnswers({ [key]: value });
   }
+  function patchM2(patch) {
+    setAnswers((a) => ({ ...a, m2: { ...DEFAULT_M2, ...(a.m2 || {}), ...patch } }));
+  }
+  function resetModule2() {
+    // Apaga somente as respostas do Módulo 2. O Módulo 1 permanece salvo.
+    setAnswers((a) => ({ ...a, m2: { ...DEFAULT_M2 } }));
+    setHistory([]);
+    setScreen("m2Intro");
+  }
+
   function completeSection(sectionId, label, nextScreen = "module1Hub") {
     setProgress((p) => ({ ...p, [sectionId]: true }));
     setLastCompletedLabel(label);
@@ -505,9 +494,7 @@ const AREA_POR_PERGUNTA = {
                 Instagram Organizado{" "}
               </p>{" "}
               {progressInfo && (
-                <p className="text-[11px] text-neutral-400 truncate">
-                  {progressInfo.label}
-                </p>
+                <p className="text-[11px] text-neutral-400 truncate">{progressInfo.label}</p>
               )}{" "}
             </div>{" "}
           </div>{" "}
@@ -522,10 +509,7 @@ const AREA_POR_PERGUNTA = {
           )}{" "}
         </div>{" "}
         {/* Content */}{" "}
-        <div
-          key={screen}
-          className="io-anim io-scroll flex-1 overflow-y-auto px-5 py-6"
-        >
+        <div key={screen} className="io-anim io-scroll flex-1 overflow-y-auto px-5 py-6">
           {" "}
           {screen === "welcome" && <Welcome onStart={() => goTo("q1")} />}{" "}
           {screen === "q1" && (
@@ -566,10 +550,7 @@ const AREA_POR_PERGUNTA = {
             />
           )}{" "}
           {screen === "summary" && (
-            <DiagnosticSummary
-              answers={answers}
-              onStart={() => goTo("module1Hub")}
-            />
+            <DiagnosticSummary answers={answers} onStart={() => goTo("module1Hub")} />
           )}{" "}
           {screen === "module1Hub" && (
             <Module1Hub
@@ -583,9 +564,7 @@ const AREA_POR_PERGUNTA = {
               onAskReset={() => setShowResetConfirm(true)}
             />
           )}{" "}
-          {screen === "explainAt" && (
-            <ExplainAt onNext={() => goTo("explainNome")} />
-          )}{" "}
+          {screen === "explainAt" && <ExplainAt onNext={() => goTo("explainNome")} />}{" "}
           {screen === "explainNome" && (
             <ExplainNome
               exampleArroba={answers.arroba || "@docesdalu"}
@@ -607,9 +586,7 @@ const AREA_POR_PERGUNTA = {
               onFinish={() => completeSection("nomeArroba", "Nome e @")}
             />
           )}{" "}
-          {screen === "foto1" && (
-            <Foto1Explica answers={answers} onNext={() => goTo("foto2")} />
-          )}{" "}
+          {screen === "foto1" && <Foto1Explica answers={answers} onNext={() => goTo("foto2")} />}{" "}
           {screen === "foto2" && (
             <Foto2Interativa
               answers={answers}
@@ -678,15 +655,9 @@ const AREA_POR_PERGUNTA = {
               onFinish={() => completeSection("bio", "Bio")}
             />
           )}{" "}
-          {screen === "link1" && (
-            <Link1Explica answers={answers} onNext={() => goTo("link2")} />
-          )}{" "}
+          {screen === "link1" && <Link1Explica answers={answers} onNext={() => goTo("link2")} />}{" "}
           {screen === "link2" && (
-            <Link2Escolha
-              answers={answers}
-              setAnswer={setAnswer}
-              onNext={() => goTo("link3")}
-            />
+            <Link2Escolha answers={answers} setAnswer={setAnswer} onNext={() => goTo("link3")} />
           )}{" "}
           {screen === "link3" && (
             <Link3Whatsapp
@@ -702,9 +673,7 @@ const AREA_POR_PERGUNTA = {
               onFinish={() => completeSection("link", "Link e WhatsApp")}
             />
           )}{" "}
-          {screen === "destaques1" && (
-            <Destaques1Explica onNext={() => goTo("destaques2")} />
-          )}{" "}
+          {screen === "destaques1" && <Destaques1Explica onNext={() => goTo("destaques2")} />}{" "}
           {screen === "destaques2" && (
             <Destaques2Selecao
               answers={answers}
@@ -713,21 +682,13 @@ const AREA_POR_PERGUNTA = {
             />
           )}{" "}
           {screen === "destaques3" && (
-            <Destaques3Conteudo
-              answers={answers}
-              onNext={() => goTo("destaques4")}
-            />
+            <Destaques3Conteudo answers={answers} onNext={() => goTo("destaques4")} />
           )}{" "}
           {screen === "destaques4" && (
-            <Destaques4Capas
-              onFinish={() => completeSection("destaques", "Destaques")}
-            />
+            <Destaques4Capas onFinish={() => completeSection("destaques", "Destaques")} />
           )}{" "}
           {screen === "revisao1" && (
-            <Revisao1Checklist
-              progress={progress}
-              onNext={() => goTo("revisao2")}
-            />
+            <Revisao1Checklist progress={progress} onNext={() => goTo("revisao2")} />
           )}{" "}
           {screen === "revisao2" && (
             <Revisao2Teste5s
@@ -739,25 +700,56 @@ const AREA_POR_PERGUNTA = {
           {screen === "revisao3" && (
             <Revisao3Preview
               answers={answers}
-              onFinish={() =>
-                completeSection(
-                  "revisao",
-                  "Revisão do perfil",
-                  "module2ComingSoon",
-                )
-              }
+              onFinish={() => completeSection("revisao", "Revisão do perfil", "m2Intro")}
             />
           )}{" "}
           {screen === "module2ComingSoon" && (
             <Module2ComingSoon onBack={() => goTo("module1Hub")} />
           )}{" "}
+          {screen === "m2Intro" && <M2Intro answers={answers} onNext={() => goTo("m2Pilares")} />}{" "}
+          {screen === "m2Pilares" && (
+            <M2Pilares answers={answers} patchM2={patchM2} onNext={() => goTo("m2Periodo")} />
+          )}{" "}
+          {screen === "m2Periodo" && (
+            <M2Periodo answers={answers} patchM2={patchM2} onNext={() => goTo("m2DataNegocio")} />
+          )}{" "}
+          {screen === "m2DataNegocio" && (
+            <M2DataNegocio
+              answers={answers}
+              patchM2={patchM2}
+              onNext={() => goTo("m2DatasComerciais")}
+            />
+          )}{" "}
+          {screen === "m2DatasComerciais" && (
+            <M2DatasComerciais
+              answers={answers}
+              patchM2={patchM2}
+              onNext={() => goTo("m2Formatos")}
+            />
+          )}{" "}
+          {screen === "m2Formatos" && (
+            <M2Formatos answers={answers} patchM2={patchM2} onNext={() => goTo("m2Frequencia")} />
+          )}{" "}
+          {screen === "m2Frequencia" && (
+            <M2Frequencia answers={answers} patchM2={patchM2} onNext={() => goTo("m2Ideias")} />
+          )}{" "}
+          {screen === "m2Ideias" && (
+            <M2Ideias answers={answers} patchM2={patchM2} onNext={() => goTo("m2Calendario")} />
+          )}{" "}
+          {screen === "m2Calendario" && (
+            <M2Calendario
+              answers={answers}
+              onNext={() => {
+                patchM2({ concluido: true });
+                goTo("m2Final");
+              }}
+            />
+          )}{" "}
+          {screen === "m2Final" && <M2Final answers={answers} onReset={resetModule2} />}{" "}
         </div>{" "}
       </div>{" "}
       {showResetConfirm && (
-        <ResetConfirmModal
-          onCancel={() => setShowResetConfirm(false)}
-          onConfirm={resetAll}
-        />
+        <ResetConfirmModal onCancel={() => setShowResetConfirm(false)} onConfirm={resetAll} />
       )}{" "}
     </div>
   );
@@ -781,9 +773,7 @@ const AREA_POR_PERGUNTA = {
 }
 function SectionEyebrow({ children }) {
   return (
-    <p className="text-[11px] font-bold tracking-wide text-yellow-600 uppercase mb-2">
-      {children}
-    </p>
+    <p className="text-[11px] font-bold tracking-wide text-yellow-600 uppercase mb-2">{children}</p>
   );
 }
 function ChecklistToggle({ checked, label, onClick }) {
@@ -797,13 +787,9 @@ function ChecklistToggle({ checked, label, onClick }) {
         className={`w-5 h-5 rounded-md flex items-center justify-center flex-none ${checked ? "bg-yellow-400" : "bg-white border border-neutral-300"}`}
       >
         {" "}
-        {checked && (
-          <Check size={12} className="text-neutral-900" strokeWidth={3} />
-        )}{" "}
+        {checked && <Check size={12} className="text-neutral-900" strokeWidth={3} />}{" "}
       </div>{" "}
-      <span className="text-[13.5px] font-semibold text-neutral-700">
-        {label}
-      </span>{" "}
+      <span className="text-[13.5px] font-semibold text-neutral-700">{label}</span>{" "}
     </button>
   );
 }
@@ -818,9 +804,7 @@ function NumberedSteps({ steps }) {
             {" "}
             {i + 1}{" "}
           </div>{" "}
-          <p className="text-[13.5px] text-neutral-700 leading-relaxed pt-0.5">
-            {s}
-          </p>{" "}
+          <p className="text-[13.5px] text-neutral-700 leading-relaxed pt-0.5">{s}</p>{" "}
         </div>
       ))}{" "}
     </div>
@@ -847,9 +831,8 @@ function NumberedSteps({ steps }) {
         </h1>{" "}
         <p className="text-[15px] text-neutral-500 leading-relaxed">
           {" "}
-          Você não precisa entender de marketing. Aqui você vai aprender o que
-          cada parte do seu Instagram significa e organizar seu perfil de acordo
-          com o seu negócio.{" "}
+          Você não precisa entender de marketing. Aqui você vai aprender o que cada parte do seu
+          Instagram significa e organizar seu perfil de acordo com o seu negócio.{" "}
         </p>{" "}
       </div>{" "}
       <PrimaryButton onClick={onStart}>
@@ -948,8 +931,7 @@ function DiagnosticSummary({ answers, onStart }) {
           style={{ fontFamily: FONT_DISPLAY }}
         >
           {" "}
-          Perfeito. Agora vamos começar organizando a parte mais importante: seu
-          perfil.{" "}
+          Perfeito. Agora vamos começar organizando a parte mais importante: seu perfil.{" "}
         </h2>{" "}
         <p className="text-[14.5px] text-neutral-500 leading-relaxed">
           {" "}
@@ -982,19 +964,13 @@ function DiagnosticSummary({ answers, onStart }) {
         {" "}
         Módulo 1{" "}
       </h2>{" "}
-      <p className="text-[14px] text-neutral-500 mb-5">
-        Organizando seu perfil
-      </p>{" "}
+      <p className="text-[14px] text-neutral-500 mb-5">Organizando seu perfil</p>{" "}
       {justCompleted && (
         <div className="mb-4 flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-2xl px-4 py-3">
           {" "}
           <div className="w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center flex-none">
             {" "}
-            <Check
-              size={13}
-              className="text-neutral-900"
-              strokeWidth={3}
-            />{" "}
+            <Check size={13} className="text-neutral-900" strokeWidth={3} />{" "}
           </div>{" "}
           <p className="text-[13px] font-semibold text-neutral-700">
             "{lastCompletedLabel}" concluído. A próxima área já foi liberada.
@@ -1007,8 +983,7 @@ function DiagnosticSummary({ answers, onStart }) {
           const Icon = s.icon;
           const done = progress[s.id];
           const prev = MODULE1_SECTIONS[i - 1];
-          const unlocked =
-            s.entry !== null && (i === 0 || (prev && progress[prev.id]));
+          const unlocked = s.entry !== null && (i === 0 || (prev && progress[prev.id]));
           return (
             <button
               key={s.id}
@@ -1022,11 +997,7 @@ function DiagnosticSummary({ answers, onStart }) {
               >
                 {" "}
                 {done ? (
-                  <Check
-                    size={16}
-                    className="text-neutral-900"
-                    strokeWidth={3}
-                  />
+                  <Check size={16} className="text-neutral-900" strokeWidth={3} />
                 ) : !unlocked ? (
                   <Lock size={14} className="text-neutral-400" />
                 ) : (
@@ -1040,11 +1011,7 @@ function DiagnosticSummary({ answers, onStart }) {
                   {i + 1}. {s.label}{" "}
                 </p>{" "}
                 <p className="text-[11.5px] text-neutral-400">
-                  {done
-                    ? "Concluído"
-                    : !unlocked
-                      ? "Em breve"
-                      : "Disponível agora"}
+                  {done ? "Concluído" : !unlocked ? "Em breve" : "Disponível agora"}
                 </p>{" "}
               </div>{" "}
             </button>
@@ -1076,18 +1043,15 @@ function ResetConfirmModal({ onCancel, onConfirm }) {
             {" "}
             Recomeçar tudo?{" "}
           </p>{" "}
-          <button
-            onClick={onCancel}
-            className="text-neutral-400 hover:text-neutral-600"
-          >
+          <button onClick={onCancel} className="text-neutral-400 hover:text-neutral-600">
             {" "}
             <X size={18} />{" "}
           </button>{" "}
         </div>{" "}
         <p className="text-[13.5px] text-neutral-500 leading-relaxed mb-6">
           {" "}
-          Isso vai apagar todas as respostas e o progresso salvo neste
-          dispositivo. Essa ação não pode ser desfeita.{" "}
+          Isso vai apagar todas as respostas e o progresso salvo neste dispositivo. Essa ação não
+          pode ser desfeita.{" "}
         </p>{" "}
         <div className="flex flex-col gap-2">
           {" "}
@@ -1110,9 +1074,7 @@ function ResetConfirmModal({ onCancel, onConfirm }) {
     </div>
   );
 }
-/* ------------------------ Nome e @ ------------------------ */ function ExplainAt({
-  onNext,
-}) {
+/* ------------------------ Nome e @ ------------------------ */ function ExplainAt({ onNext }) {
   return (
     <div className="h-full flex flex-col justify-between">
       {" "}
@@ -1130,23 +1092,19 @@ function ResetConfirmModal({ onCancel, onConfirm }) {
           {" "}
           <p className="text-[14.5px] text-neutral-700 leading-relaxed">
             {" "}
-            O <strong>@</strong>, também chamado de nome de usuário, é o
-            endereço da sua conta no Instagram. É por ele que as pessoas te
-            encontram e te marcam.{" "}
+            O <strong>@</strong>, também chamado de nome de usuário, é o endereço da sua conta no
+            Instagram. É por ele que as pessoas te encontram e te marcam.{" "}
           </p>{" "}
         </div>{" "}
         <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-2xl px-4 py-3">
           {" "}
           <AtSign size={16} className="text-yellow-600 flex-none" />{" "}
-          <p className="text-[14px] font-bold text-neutral-800">
-            @docesdalu
-          </p>{" "}
+          <p className="text-[14px] font-bold text-neutral-800">@docesdalu</p>{" "}
         </div>{" "}
         <p className="text-[13px] text-neutral-500 leading-relaxed mt-4">
           {" "}
-          Ele deve ser simples, fácil de escrever, fácil de falar em voz alta e
-          fácil de lembrar — pense em como você diria seu @ para um cliente pelo
-          telefone.{" "}
+          Ele deve ser simples, fácil de escrever, fácil de falar em voz alta e fácil de lembrar —
+          pense em como você diria seu @ para um cliente pelo telefone.{" "}
         </p>{" "}
       </div>{" "}
       <PrimaryButton onClick={onNext}>
@@ -1168,12 +1126,8 @@ function ProfilePreview({ arroba, nome }) {
         </div>{" "}
         <div className="min-w-0">
           {" "}
-          <p className="text-[15px] font-extrabold text-neutral-900 truncate">
-            {nome}
-          </p>{" "}
-          <p className="text-[12.5px] text-neutral-400 truncate">
-            {arroba}
-          </p>{" "}
+          <p className="text-[15px] font-extrabold text-neutral-900 truncate">{nome}</p>{" "}
+          <p className="text-[12.5px] text-neutral-400 truncate">{arroba}</p>{" "}
         </div>{" "}
       </div>{" "}
       <div className="mt-3 pt-3 border-t border-neutral-100 flex items-center justify-between text-[11px]">
@@ -1210,9 +1164,9 @@ function ExplainNome({ exampleArroba, exampleNome, onNext }) {
           {" "}
           <p className="text-[14.5px] text-neutral-700 leading-relaxed">
             {" "}
-            O <strong>Nome</strong> é outro campo do perfil, separado do @. Ele
-            pode ajudar as pessoas a entenderem rapidamente o que a sua empresa
-            faz, mesmo sem conhecer o seu @.{" "}
+            O <strong>Nome</strong> é outro campo do perfil, separado do @. Ele pode ajudar as
+            pessoas a entenderem rapidamente o que a sua empresa faz, mesmo sem conhecer o seu
+            @.{" "}
           </p>{" "}
         </div>{" "}
         <ProfilePreview arroba={exampleArroba} nome={exampleNome} />{" "}
@@ -1305,8 +1259,8 @@ function NameAtInteractive({ answers, setAnswer, onNext }) {
         )}{" "}
         <p className="text-[14px] font-bold text-neutral-800 mb-3 leading-snug">
           {" "}
-          Se uma pessoa que nunca viu sua empresa entrar no seu perfil, ela
-          consegue entender o que você faz?{" "}
+          Se uma pessoa que nunca viu sua empresa entrar no seu perfil, ela consegue entender o que
+          você faz?{" "}
         </p>{" "}
         <div className="flex flex-col gap-2">
           {" "}
@@ -1426,17 +1380,14 @@ function Foto1Explica({ answers, onNext }) {
           {" "}
           <p className="text-[14.5px] text-neutral-700 leading-relaxed">
             {" "}
-            É a imagem pequena e redonda que aparece em todo canto: nos posts,
-            nos stories, nos comentários e nas mensagens. Muitas vezes é a
-            primeira coisa que alguém vê, antes mesmo de abrir o seu
-            perfil.{" "}
+            É a imagem pequena e redonda que aparece em todo canto: nos posts, nos stories, nos
+            comentários e nas mensagens. Muitas vezes é a primeira coisa que alguém vê, antes mesmo
+            de abrir o seu perfil.{" "}
           </p>{" "}
         </div>{" "}
         <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-4">
           {" "}
-          <p className="text-[13.5px] text-neutral-700 leading-relaxed">
-            {dica}
-          </p>{" "}
+          <p className="text-[13.5px] text-neutral-700 leading-relaxed">{dica}</p>{" "}
         </div>{" "}
         <p className="text-[13px] font-bold text-neutral-500 uppercase tracking-wide mb-3">
           Compare os dois exemplos
@@ -1446,9 +1397,7 @@ function Foto1Explica({ answers, onNext }) {
           <div className="bg-white border border-neutral-200 rounded-2xl p-3 flex flex-col items-center text-center">
             {" "}
             <MiniAvatarBoa />{" "}
-            <p className="text-[12px] font-bold text-neutral-800 mt-2">
-              Boa foto
-            </p>{" "}
+            <p className="text-[12px] font-bold text-neutral-800 mt-2">Boa foto</p>{" "}
             <p className="text-[10.5px] text-neutral-400 leading-snug">
               Logo simples e legível
             </p>{" "}
@@ -1466,9 +1415,8 @@ function Foto1Explica({ answers, onNext }) {
         </div>{" "}
         <p className="text-[13px] text-neutral-500 leading-relaxed">
           {" "}
-          Em telas de celular a foto aparece bem pequena. Textos miúdos e
-          imagens com muitos elementos ficam ilegíveis — quanto mais simples,
-          melhor ela funciona.{" "}
+          Em telas de celular a foto aparece bem pequena. Textos miúdos e imagens com muitos
+          elementos ficam ilegíveis — quanto mais simples, melhor ela funciona.{" "}
         </p>{" "}
       </div>{" "}
       <div className="mt-4">
@@ -1535,9 +1483,7 @@ function Foto2Interativa({ answers, patchAnswers, onFinish }) {
             />
           ))}{" "}
         </div>{" "}
-        <p className="text-[14px] font-bold text-neutral-800 mb-3">
-          O que você usa hoje?
-        </p>{" "}
+        <p className="text-[14px] font-bold text-neutral-800 mb-3">O que você usa hoje?</p>{" "}
         <div className="flex flex-col gap-2 mb-4">
           {" "}
           {opcoes.map((opt) => (
@@ -1593,9 +1539,8 @@ function Foto2Interativa({ answers, patchAnswers, onFinish }) {
           {" "}
           <p className="text-[14.5px] text-neutral-700 leading-relaxed">
             {" "}
-            A bio é o texto curto — até 150 caracteres — que fica logo abaixo do
-            seu nome, no topo do perfil. É uma das primeiras coisas que a pessoa
-            lê ao entrar na sua conta.{" "}
+            A bio é o texto curto — até 150 caracteres — que fica logo abaixo do seu nome, no topo
+            do perfil. É uma das primeiras coisas que a pessoa lê ao entrar na sua conta.{" "}
           </p>{" "}
         </div>{" "}
         <p className="text-[13px] font-bold text-neutral-500 uppercase tracking-wide mb-2">
@@ -1623,8 +1568,8 @@ function Foto2Interativa({ answers, patchAnswers, onFinish }) {
         </div>{" "}
         <p className="text-[12px] text-neutral-400 leading-relaxed mb-5">
           {" "}
-          Soa bonito, mas não diz o que a empresa faz, pra quem, nem o que fazer
-          a seguir — poderia ser de qualquer negócio.{" "}
+          Soa bonito, mas não diz o que a empresa faz, pra quem, nem o que fazer a seguir — poderia
+          ser de qualquer negócio.{" "}
         </p>{" "}
         <p className="text-[12px] font-bold text-yellow-600 uppercase tracking-wide mb-2">
           {tema ? `Exemplo pensado para ${tema}` : "Exemplo melhor"}
@@ -1646,15 +1591,7 @@ function Foto2Interativa({ answers, patchAnswers, onFinish }) {
     </div>
   );
 }
-function BioStep({
-  stepLabel,
-  hint,
-  value,
-  placeholder,
-  onChange,
-  onNext,
-  optional,
-}) {
+function BioStep({ stepLabel, hint, value, placeholder, onChange, onNext, optional }) {
   return (
     <div className="h-full flex flex-col justify-between">
       {" "}
@@ -1668,11 +1605,7 @@ function BioStep({
           {" "}
           {stepLabel}{" "}
         </h2>{" "}
-        {hint && (
-          <p className="text-[13px] text-neutral-400 leading-relaxed mb-4">
-            {hint}
-          </p>
-        )}{" "}
+        {hint && <p className="text-[13px] text-neutral-400 leading-relaxed mb-4">{hint}</p>}{" "}
         <textarea
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
@@ -1718,18 +1651,13 @@ function BioStep3Local({ answers, setAnswer, patchAnswers, onNext }) {
           <ChecklistToggle
             checked={answers.bioOndeNA}
             label="Minha localização não é importante para o meu negócio."
-            onClick={() =>
-              patchAnswers({ bioOndeNA: !answers.bioOndeNA, bioOnde: "" })
-            }
+            onClick={() => patchAnswers({ bioOndeNA: !answers.bioOndeNA, bioOnde: "" })}
           />{" "}
         </div>{" "}
       </div>{" "}
       <div className="mt-5">
         {" "}
-        <PrimaryButton
-          onClick={onNext}
-          disabled={!answers.bioOndeNA && !answers.bioOnde?.trim()}
-        >
+        <PrimaryButton onClick={onNext} disabled={!answers.bioOndeNA && !answers.bioOnde?.trim()}>
           {" "}
           CONTINUAR <ArrowRight size={17} />{" "}
         </PrimaryButton>{" "}
@@ -1749,8 +1677,7 @@ function BioStep4Cta({ answers, setAnswer, onNext }) {
   ];
   const podeAvancar =
     answers.bioProximoPasso &&
-    (answers.bioProximoPasso !== "Outro" ||
-      answers.bioProximoPassoOutro?.trim());
+    (answers.bioProximoPasso !== "Outro" || answers.bioProximoPassoOutro?.trim());
   return (
     <div className="h-full flex flex-col justify-between">
       {" "}
@@ -1842,8 +1769,7 @@ function BioResult({ answers, setAnswer, onFinish }) {
         <div className="mt-6">
           {" "}
           <p className="text-[13.5px] font-semibold text-neutral-700 mb-3">
-            Agora é só abrir o Instagram, tocar em Editar perfil e colar sua
-            nova bio.
+            Agora é só abrir o Instagram, tocar em Editar perfil e colar sua nova bio.
           </p>{" "}
           <NumberedSteps
             steps={[
@@ -1887,9 +1813,8 @@ function BioResult({ answers, setAnswer, onFinish }) {
           {" "}
           <p className="text-[14.5px] text-neutral-700 leading-relaxed">
             {" "}
-            É a área abaixo da bio que leva a pessoa do Instagram para uma
-            próxima ação — o único link clicável do perfil fora dos
-            stories.{" "}
+            É a área abaixo da bio que leva a pessoa do Instagram para uma próxima ação — o único
+            link clicável do perfil fora dos stories.{" "}
           </p>{" "}
         </div>{" "}
         <p className="text-[13px] font-bold text-neutral-500 uppercase tracking-wide mb-2">
@@ -1918,9 +1843,7 @@ function BioResult({ answers, setAnswer, onFinish }) {
         {dica && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
             {" "}
-            <p className="text-[13.5px] text-neutral-700 leading-relaxed">
-              {dica}
-            </p>{" "}
+            <p className="text-[13.5px] text-neutral-700 leading-relaxed">{dica}</p>{" "}
           </div>
         )}{" "}
       </div>{" "}
@@ -1975,13 +1898,11 @@ function Link2Escolha({ answers, setAnswer, onNext }) {
         </p>{" "}
         <div className="bg-neutral-50 border border-neutral-100 rounded-2xl p-4 mb-3">
           {" "}
-          <p className="text-[13px] font-bold text-neutral-800 mb-1">
-            Link único
-          </p>{" "}
+          <p className="text-[13px] font-bold text-neutral-800 mb-1">Link único</p>{" "}
           <p className="text-[13px] text-neutral-600 leading-relaxed">
             {" "}
-            Leva direto a um só lugar — ideal quando você tem um objetivo
-            principal, como abrir o WhatsApp ou uma página de pedidos.{" "}
+            Leva direto a um só lugar — ideal quando você tem um objetivo principal, como abrir o
+            WhatsApp ou uma página de pedidos.{" "}
           </p>{" "}
         </div>{" "}
         <div className="bg-neutral-50 border border-neutral-100 rounded-2xl p-4">
@@ -1991,10 +1912,9 @@ function Link2Escolha({ answers, setAnswer, onNext }) {
           </p>{" "}
           <p className="text-[13px] text-neutral-600 leading-relaxed">
             {" "}
-            Reúne várias opções (WhatsApp, site, catálogo, endereço) numa única
-            página — faz sentido quando você precisa direcionar para mais de um
-            lugar. Não é obrigatório usar uma ferramenta específica para isso; o
-            importante é o conceito.{" "}
+            Reúne várias opções (WhatsApp, site, catálogo, endereço) numa única página — faz sentido
+            quando você precisa direcionar para mais de um lugar. Não é obrigatório usar uma
+            ferramenta específica para isso; o importante é o conceito.{" "}
           </p>{" "}
         </div>{" "}
       </div>{" "}
@@ -2039,20 +1959,18 @@ function Link3Whatsapp({ answers, patchAnswers, onNext }) {
           {" "}
           <p className="text-[13.5px] text-neutral-700 leading-relaxed">
             {" "}
-            Colocar só o número escrito na bio obriga a pessoa a copiar e colar
-            manualmente. Um <strong>link clicável</strong> abre a conversa
-            direto — menos etapas, menos chance da pessoa desistir no meio do
-            caminho.{" "}
+            Colocar só o número escrito na bio obriga a pessoa a copiar e colar manualmente. Um{" "}
+            <strong>link clicável</strong> abre a conversa direto — menos etapas, menos chance da
+            pessoa desistir no meio do caminho.{" "}
           </p>{" "}
         </div>{" "}
         <div className="bg-neutral-50 border border-neutral-100 rounded-2xl p-4 mb-6">
           {" "}
           <p className="text-[13.5px] text-neutral-700 leading-relaxed">
             {" "}
-            Vale sempre testar se o link realmente abre a conversa no número
-            certo, e, se possível, usar um número separado para o WhatsApp
-            comercial — assim mensagens de clientes não se misturam com as
-            pessoais.{" "}
+            Vale sempre testar se o link realmente abre a conversa no número certo, e, se possível,
+            usar um número separado para o WhatsApp comercial — assim mensagens de clientes não se
+            misturam com as pessoais.{" "}
           </p>{" "}
         </div>{" "}
         <p className="text-[13px] font-bold text-neutral-500 uppercase tracking-wide mb-2">
@@ -2112,8 +2030,7 @@ function Link4Mensagem({ answers, patchAnswers, onFinish }) {
         </h2>{" "}
         <p className="text-[13px] text-neutral-400 leading-relaxed mb-3">
           {" "}
-          Sugerimos um modelo com base no seu objetivo. Edite à vontade antes de
-          usar.{" "}
+          Sugerimos um modelo com base no seu objetivo. Edite à vontade antes de usar.{" "}
         </p>{" "}
         <textarea
           value={answers.whatsappMsg || ""}
@@ -2126,8 +2043,7 @@ function Link4Mensagem({ answers, patchAnswers, onFinish }) {
           className="w-full mt-4 flex items-center justify-center gap-2 border border-neutral-200 rounded-2xl py-3.5 font-bold text-[14px] text-neutral-800 hover:border-yellow-400 transition-all"
         >
           {" "}
-          <MessageCircle size={16} />{" "}
-          {copied ? "COPIADO!" : "COPIAR MENSAGEM"}{" "}
+          <MessageCircle size={16} /> {copied ? "COPIADO!" : "COPIAR MENSAGEM"}{" "}
         </button>{" "}
       </div>{" "}
       <div className="mt-5">
@@ -2160,10 +2076,9 @@ function Link4Mensagem({ answers, patchAnswers, onFinish }) {
           {" "}
           <p className="text-[14.5px] text-neutral-700 leading-relaxed">
             {" "}
-            São Stories que continuam visíveis no seu perfil mesmo depois de 24
-            horas, organizados em círculos logo abaixo da bio. Uma pessoa nova
-            pode conhecer rapidamente informações essenciais sobre o seu
-            negócio, sem precisar rolar o feed.{" "}
+            São Stories que continuam visíveis no seu perfil mesmo depois de 24 horas, organizados
+            em círculos logo abaixo da bio. Uma pessoa nova pode conhecer rapidamente informações
+            essenciais sobre o seu negócio, sem precisar rolar o feed.{" "}
           </p>{" "}
         </div>{" "}
         <div className="bg-yellow-400 rounded-2xl p-4">
@@ -2173,8 +2088,8 @@ function Link4Mensagem({ answers, patchAnswers, onFinish }) {
             style={{ fontFamily: FONT_DISPLAY }}
           >
             {" "}
-            Não pense nos Destaques como decoração. Pense neles como atalhos
-            para as principais dúvidas do seu cliente.{" "}
+            Não pense nos Destaques como decoração. Pense neles como atalhos para as principais
+            dúvidas do seu cliente.{" "}
           </p>{" "}
         </div>{" "}
       </div>{" "}
@@ -2189,18 +2104,10 @@ function Link4Mensagem({ answers, patchAnswers, onFinish }) {
   );
 }
 function Destaques2Selecao({ answers, setAnswer, onNext }) {
-  const sugeridos = useMemo(
-    () => sugerirDestaques(answers.negocio),
-    [answers.negocio],
-  );
-  const selecionados = answers.destaquesSelecionados?.length
-    ? answers.destaquesSelecionados
-    : null;
+  const sugeridos = useMemo(() => sugerirDestaques(answers.negocio), [answers.negocio]);
+  const selecionados = answers.destaquesSelecionados?.length ? answers.destaquesSelecionados : null;
   useEffect(() => {
-    if (
-      !answers.destaquesSelecionados ||
-      answers.destaquesSelecionados.length === 0
-    ) {
+    if (!answers.destaquesSelecionados || answers.destaquesSelecionados.length === 0) {
       setAnswer("destaquesSelecionados", sugeridos);
     }
   }, []);
@@ -2281,19 +2188,14 @@ function Destaques3Conteudo({ answers, onNext }) {
           {selecionados.map((cat) => {
             const aberto = expandido === cat;
             return (
-              <div
-                key={cat}
-                className="border border-neutral-200 rounded-2xl overflow-hidden"
-              >
+              <div key={cat} className="border border-neutral-200 rounded-2xl overflow-hidden">
                 {" "}
                 <button
                   onClick={() => setExpandido(aberto ? null : cat)}
                   className="w-full flex items-center justify-between px-4 py-3.5 bg-white"
                 >
                   {" "}
-                  <span className="text-[13.5px] font-bold text-neutral-800">
-                    {cat}
-                  </span>{" "}
+                  <span className="text-[13.5px] font-bold text-neutral-800">{cat}</span>{" "}
                   <ChevronDown
                     size={16}
                     className={`text-neutral-400 transition-transform ${aberto ? "rotate-180" : ""}`}
@@ -2305,10 +2207,7 @@ function Destaques3Conteudo({ answers, onNext }) {
                     <ul className="flex flex-col gap-1.5">
                       {" "}
                       {(CONTEUDO_DESTAQUE[cat] || []).map((sugestao, i) => (
-                        <li
-                          key={i}
-                          className="text-[13px] text-neutral-600 flex items-start gap-2"
-                        >
+                        <li key={i} className="text-[13px] text-neutral-600 flex items-start gap-2">
                           {" "}
                           <span className="w-1 h-1 rounded-full bg-yellow-500 mt-2 flex-none" />{" "}
                           {sugestao}{" "}
@@ -2361,15 +2260,9 @@ function Destaques4Capas({ onFinish }) {
                 {" "}
                 <div className="w-5 h-5 rounded-full bg-yellow-400 flex items-center justify-center flex-none mt-0.5">
                   {" "}
-                  <Check
-                    size={11}
-                    className="text-neutral-900"
-                    strokeWidth={3}
-                  />{" "}
+                  <Check size={11} className="text-neutral-900" strokeWidth={3} />{" "}
                 </div>{" "}
-                <span className="text-[13.5px] text-neutral-700 leading-relaxed">
-                  {t}
-                </span>{" "}
+                <span className="text-[13.5px] text-neutral-700 leading-relaxed">{t}</span>{" "}
               </li>
             ))}{" "}
           </ul>{" "}
@@ -2418,16 +2311,10 @@ function Destaques4Capas({ onFinish }) {
               >
                 {" "}
                 {progress[s.id] && (
-                  <Check
-                    size={14}
-                    className="text-neutral-900"
-                    strokeWidth={3}
-                  />
+                  <Check size={14} className="text-neutral-900" strokeWidth={3} />
                 )}{" "}
               </div>{" "}
-              <span className="text-[13.5px] font-semibold text-neutral-700 flex-1">
-                {s.label}
-              </span>{" "}
+              <span className="text-[13.5px] font-semibold text-neutral-700 flex-1">{s.label}</span>{" "}
               <span
                 className={`text-[11px] font-bold ${progress[s.id] ? "text-yellow-600" : "text-neutral-400"}`}
               >
@@ -2468,8 +2355,7 @@ function Revisao2Teste5s({ answers, setAnswer, onNext }) {
         <SectionEyebrow>Teste dos 5 segundos</SectionEyebrow>{" "}
         <p className="text-[14px] text-neutral-600 leading-relaxed mb-1">
           {" "}
-          Imagine que alguém que nunca ouviu falar da sua empresa entrou agora
-          no seu perfil.{" "}
+          Imagine que alguém que nunca ouviu falar da sua empresa entrou agora no seu perfil.{" "}
         </p>{" "}
         <h2
           className="text-[17px] font-extrabold text-neutral-900 mb-5 leading-snug"
@@ -2483,9 +2369,7 @@ function Revisao2Teste5s({ answers, setAnswer, onNext }) {
           {perguntas.map((p) => (
             <div key={p.key}>
               {" "}
-              <p className="text-[13.5px] font-bold text-neutral-800 mb-2">
-                {p.texto}
-              </p>{" "}
+              <p className="text-[13.5px] font-bold text-neutral-800 mb-2">{p.texto}</p>{" "}
               <div className="flex gap-2">
                 {" "}
                 {["SIM", "AINDA NÃO"].map((opt) => (
@@ -2505,9 +2389,7 @@ function Revisao2Teste5s({ answers, setAnswer, onNext }) {
         {negativas.length > 0 && (
           <div className="mt-5 bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
             {" "}
-            <p className="text-[13px] font-bold text-neutral-800 mb-1.5">
-              Vale revisar:
-            </p>{" "}
+            <p className="text-[13px] font-bold text-neutral-800 mb-1.5">Vale revisar:</p>{" "}
             <ul className="flex flex-col gap-1">
               {" "}
               {negativas.map((p) => (
@@ -2606,8 +2488,8 @@ function Revisao3Preview({ answers, onFinish }) {
         </div>{" "}
         <p className="text-[13.5px] text-neutral-500 leading-relaxed">
           {" "}
-          Agora começa a segunda parte: transformar esse perfil em conteúdo que
-          ajuda sua empresa a ser encontrada, lembrada e escolhida.{" "}
+          Agora começa a segunda parte: transformar esse perfil em conteúdo que ajuda sua empresa a
+          ser encontrada, lembrada e escolhida.{" "}
         </p>{" "}
       </div>{" "}
       <div className="mt-5">
@@ -2639,9 +2521,9 @@ function Module2ComingSoon({ onBack }) {
         </h2>{" "}
         <p className="text-[14.5px] text-neutral-500 leading-relaxed">
           {" "}
-          Estamos organizando a próxima etapa: pilares de conteúdo, o que
-          postar, calendário e ideias para Reels e Stories. Em breve ela é
-          liberada aqui, com tudo o que você já preencheu até agora.{" "}
+          Estamos organizando a próxima etapa: pilares de conteúdo, o que postar, calendário e
+          ideias para Reels e Stories. Em breve ela é liberada aqui, com tudo o que você já
+          preencheu até agora.{" "}
         </p>{" "}
       </div>{" "}
       <button
