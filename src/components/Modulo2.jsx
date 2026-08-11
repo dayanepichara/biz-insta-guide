@@ -62,9 +62,7 @@ function PrimaryButton({ children, onClick, disabled }) {
 
 function Eyebrow({ children }) {
   return (
-    <p className="text-[11px] font-bold tracking-wide text-yellow-600 uppercase mb-2">
-      {children}
-    </p>
+    <p className="text-[11px] font-bold tracking-wide text-yellow-600 uppercase mb-2">{children}</p>
   );
 }
 
@@ -111,9 +109,7 @@ function OptionButton({ active, children, onClick }) {
 
 function Card({ children }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">
-      {children}
-    </div>
+    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">{children}</div>
   );
 }
 
@@ -471,15 +467,15 @@ const DATAS_COMERCIAIS = [
 export function datasComerciaisRelevantes(answers, periodo, dataFim) {
   const { inicio, fim } = periodoRange(periodo, dataFim);
   const cat = categoriaDoNegocio(answers);
-  const txt = `${answers.negocio || ""} ${answers.oferece || ""} ${answers.comprador || ""}`.toLowerCase();
+  const txt =
+    `${answers.negocio || ""} ${answers.oferece || ""} ${answers.comprador || ""}`.toLowerCase();
   const anos = [inicio.getFullYear(), fim.getFullYear()];
   const encontradas = [];
   DATAS_COMERCIAIS.forEach((d) => {
     anos.forEach((ano) => {
       const data = new Date(ano, d.mes - 1, d.dia);
       if (data < inicio || data > fim) return;
-      const relevante =
-        d.cats.includes(cat) || d.palavras.some((p) => txt.includes(p));
+      const relevante = d.cats.includes(cat) || d.palavras.some((p) => txt.includes(p));
       if (!relevante) return;
       if (encontradas.some((e) => e.nome === d.nome)) return;
       encontradas.push({
@@ -684,15 +680,7 @@ export function sugestoesStories(answers) {
   ];
 }
 
-const DIAS_SEMANA = [
-  "Segunda",
-  "Terça",
-  "Quarta",
-  "Quinta",
-  "Sexta",
-  "Sábado",
-  "Domingo",
-];
+const DIAS_SEMANA = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 
 const DISTRIBUICAO = {
   "2 posts por semana": ["Terça", "Sexta"],
@@ -705,9 +693,7 @@ export function montarCalendario(answers) {
   const m2 = answers.m2 || DEFAULT_M2;
   const dias = DISTRIBUICAO[m2.frequencia] || DIAS_SEMANA.slice(0, 3);
   const todas = gerarIdeias(answers);
-  const escolhidas = todas.filter((i) =>
-    (m2.ideiasSelecionadas || []).includes(i.id),
-  );
+  const escolhidas = todas.filter((i) => (m2.ideiasSelecionadas || []).includes(i.id));
   const lista = escolhidas.length ? escolhidas : todas.slice(0, dias.length);
   return dias.map((dia, i) => ({
     dia,
@@ -725,9 +711,7 @@ export function M2Intro({ answers, onNext }) {
       <div>
         <Eyebrow>Módulo 2 · Estratégia de conteúdo</Eyebrow>
         <Title>{info.titulo}</Title>
-        <p className="text-[13.5px] text-neutral-500 leading-relaxed mb-4">
-          {info.texto}
-        </p>
+        <p className="text-[13.5px] text-neutral-500 leading-relaxed mb-4">{info.texto}</p>
         <Card>
           <p className="text-[12px] font-bold text-neutral-500 uppercase tracking-wide mb-1">
             O que já sabemos sobre você
@@ -803,17 +787,11 @@ export function M2Pilares({ answers, patchM2, onNext }) {
   );
 }
 
-const PERIODOS = [
-  "Esta semana",
-  "Próxima semana",
-  "Até o fim deste mês",
-  "Outra data",
-];
+const PERIODOS = ["Esta semana", "Próxima semana", "Até o fim deste mês", "Outra data"];
 
 export function M2Periodo({ answers, patchM2, onNext }) {
   const m2 = answers.m2 || DEFAULT_M2;
-  const ok =
-    m2.periodo && (m2.periodo !== "Outra data" || !!m2.periodoDataFim);
+  const ok = m2.periodo && (m2.periodo !== "Outra data" || !!m2.periodoDataFim);
   return (
     <div className="h-full flex flex-col justify-between">
       <div>
@@ -821,11 +799,7 @@ export function M2Periodo({ answers, patchM2, onNext }) {
         <Title>Para qual período você quer planejar?</Title>
         <div className="flex flex-col gap-2.5 mt-4">
           {PERIODOS.map((p) => (
-            <OptionButton
-              key={p}
-              active={m2.periodo === p}
-              onClick={() => patchM2({ periodo: p })}
-            >
+            <OptionButton key={p} active={m2.periodo === p} onClick={() => patchM2({ periodo: p })}>
               {p}
             </OptionButton>
           ))}
@@ -845,8 +819,7 @@ export function M2Periodo({ answers, patchM2, onNext }) {
         )}
         {ok && (
           <p className="mt-4 text-[12.5px] text-neutral-400">
-            Período do planejamento:{" "}
-            {periodoRange(m2.periodo, m2.periodoDataFim).label}
+            Período do planejamento: {periodoRange(m2.periodo, m2.periodoDataFim).label}
           </p>
         )}
       </div>
@@ -863,18 +836,14 @@ export function M2DataNegocio({ answers, patchM2, onNext }) {
   const m2 = answers.m2 || DEFAULT_M2;
   const precisaDetalhe = m2.temDataNegocio === "Sim";
   const ok =
-    m2.temDataNegocio === "Não" ||
-    (precisaDetalhe && (m2.dataNegocioDescricao || "").trim());
+    m2.temDataNegocio === "Não" || (precisaDetalhe && (m2.dataNegocioDescricao || "").trim());
   return (
     <div className="h-full flex flex-col justify-between">
       <div>
         <Eyebrow>Datas do seu negócio</Eyebrow>
-        <Title>
-          Existe alguma data do seu próprio negócio nesse período?
-        </Title>
+        <Title>Existe alguma data do seu próprio negócio nesse período?</Title>
         <p className="text-[13px] text-neutral-400 leading-relaxed mb-4">
-          Aniversário da empresa, lançamento, promoção, evento, inauguração ou
-          outra ocasião.
+          Aniversário da empresa, lançamento, promoção, evento, inauguração ou outra ocasião.
         </p>
         <div className="flex flex-col gap-2.5">
           {["Sim", "Não"].map((o) => (
@@ -890,9 +859,7 @@ export function M2DataNegocio({ answers, patchM2, onNext }) {
         {precisaDetalhe && (
           <div className="mt-4 flex flex-col gap-3">
             <div>
-              <label className="text-[13px] text-neutral-500 block mb-2">
-                Qual a data?
-              </label>
+              <label className="text-[13px] text-neutral-500 block mb-2">Qual a data?</label>
               <input
                 type="date"
                 value={m2.dataNegocioQuando || ""}
@@ -907,9 +874,7 @@ export function M2DataNegocio({ answers, patchM2, onNext }) {
               <textarea
                 rows={2}
                 value={m2.dataNegocioDescricao || ""}
-                onChange={(e) =>
-                  patchM2({ dataNegocioDescricao: e.target.value })
-                }
+                onChange={(e) => patchM2({ dataNegocioDescricao: e.target.value })}
                 placeholder="Ex.: aniversário de 3 anos da loja com desconto"
                 className="w-full resize-none rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-[15px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
               />
@@ -950,8 +915,8 @@ export function M2DatasComerciais({ answers, patchM2, onNext }) {
         {relevantes.length ? (
           <>
             <p className="text-[13px] text-neutral-400 leading-relaxed mb-4">
-              Só mostramos datas que têm relação com o que você vende. Marque as
-              que quiser incluir no planejamento.
+              Só mostramos datas que têm relação com o que você vende. Marque as que quiser incluir
+              no planejamento.
             </p>
             <div className="flex flex-col gap-2.5">
               {relevantes.map((d) => {
@@ -961,27 +926,19 @@ export function M2DatasComerciais({ answers, patchM2, onNext }) {
                     key={d.nome}
                     onClick={() => toggle(d.nome)}
                     className={`w-full text-left px-4 py-3 rounded-2xl border transition-all ${
-                      active
-                        ? "bg-yellow-50 border-yellow-300"
-                        : "bg-neutral-50 border-neutral-200"
+                      active ? "bg-yellow-50 border-yellow-300" : "bg-neutral-50 border-neutral-200"
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <div
                         className={`w-5 h-5 rounded-md flex items-center justify-center flex-none ${
-                          active
-                            ? "bg-yellow-400"
-                            : "bg-white border border-neutral-300"
+                          active ? "bg-yellow-400" : "bg-white border border-neutral-300"
                         }`}
                       >
                         {active && <Check size={13} className="text-neutral-900" />}
                       </div>
-                      <p className="text-[14px] font-bold text-neutral-900">
-                        {d.nome}
-                      </p>
-                      <span className="text-[12px] text-neutral-400">
-                        {d.quando}
-                      </span>
+                      <p className="text-[14px] font-bold text-neutral-900">{d.nome}</p>
+                      <span className="text-[12px] text-neutral-400">{d.quando}</span>
                     </div>
                     <p className="mt-1.5 text-[12.5px] text-neutral-500 leading-relaxed">
                       Faz sentido porque {d.motivo}
@@ -993,10 +950,9 @@ export function M2DatasComerciais({ answers, patchM2, onNext }) {
           </>
         ) : (
           <p className="text-[13.5px] text-neutral-500 leading-relaxed">
-            Nesse período não há nenhuma data comercial que tenha relação real
-            com o seu negócio. Seguimos com os pilares e as datas do seu próprio
-            negócio — é melhor postar com contexto do que forçar uma data
-            qualquer.
+            Nesse período não há nenhuma data comercial que tenha relação real com o seu negócio.
+            Seguimos com os pilares e as datas do seu próprio negócio — é melhor postar com contexto
+            do que forçar uma data qualquer.
           </p>
         )}
       </div>
@@ -1032,11 +988,7 @@ export function M2Formatos({ answers, patchM2, onNext }) {
         </p>
         <div className="flex flex-col gap-2.5">
           {FORMATOS.map((f) => (
-            <OptionButton
-              key={f}
-              active={atuais.includes(f)}
-              onClick={() => toggle(f)}
-            >
+            <OptionButton key={f} active={atuais.includes(f)} onClick={() => toggle(f)}>
               {f}
             </OptionButton>
           ))}
@@ -1066,8 +1018,7 @@ export function M2Frequencia({ answers, patchM2, onNext }) {
         <Eyebrow>Frequência</Eyebrow>
         <Title>Quantos posts por semana você consegue fazer?</Title>
         <p className="text-[13px] text-neutral-400 leading-relaxed mb-4">
-          Escolha um número que você consegue manter. Constância vale mais do
-          que volume.
+          Escolha um número que você consegue manter. Constância vale mais do que volume.
         </p>
         <div className="flex flex-col gap-2.5">
           {FREQUENCIAS.map((f) => (
@@ -1112,8 +1063,7 @@ export function M2Ideias({ answers, patchM2, onNext }) {
         <Eyebrow>Ideias de conteúdo</Eyebrow>
         <Title>Ideias feitas com as suas respostas</Title>
         <p className="text-[13px] text-neutral-400 leading-relaxed mb-4">
-          Escolha pelo menos {meta} ideia{meta > 1 ? "s" : ""} para montar o
-          calendário da semana.
+          Escolha pelo menos {meta} ideia{meta > 1 ? "s" : ""} para montar o calendário da semana.
         </p>
         <div className="flex flex-col gap-2.5">
           {ideias.map((i) => {
@@ -1123,9 +1073,7 @@ export function M2Ideias({ answers, patchM2, onNext }) {
                 key={i.id}
                 onClick={() => toggle(i.id)}
                 className={`w-full text-left px-4 py-3 rounded-2xl border transition-all ${
-                  active
-                    ? "bg-yellow-50 border-yellow-300"
-                    : "bg-neutral-50 border-neutral-200"
+                  active ? "bg-yellow-50 border-yellow-300" : "bg-neutral-50 border-neutral-200"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1.5">
@@ -1140,12 +1088,8 @@ export function M2Ideias({ answers, patchM2, onNext }) {
                     {i.pilar}
                   </span>
                 </div>
-                <p className="text-[13.5px] text-neutral-700 leading-relaxed">
-                  {i.texto}
-                </p>
-                <p className="mt-1.5 text-[12px] text-neutral-400">
-                  Formato indicado: {i.formato}
-                </p>
+                <p className="text-[13.5px] text-neutral-700 leading-relaxed">{i.texto}</p>
+                <p className="mt-1.5 text-[12px] text-neutral-400">Formato indicado: {i.formato}</p>
               </button>
             );
           })}
@@ -1190,9 +1134,7 @@ export function M2Calendario({ answers, onNext }) {
               </div>
               {c.ideia ? (
                 <>
-                  <p className="text-[13px] text-neutral-700 leading-relaxed">
-                    {c.ideia.texto}
-                  </p>
+                  <p className="text-[13px] text-neutral-700 leading-relaxed">{c.ideia.texto}</p>
                   <p className="mt-1 text-[12px] text-neutral-400">
                     {c.ideia.pilar} · {c.ideia.formato}
                   </p>
@@ -1216,9 +1158,7 @@ export function M2Calendario({ answers, onNext }) {
 export function M2Final({ answers, onReset }) {
   const m2 = answers.m2 || DEFAULT_M2;
   const ideias = useMemo(() => gerarIdeias(answers), [answers]);
-  const escolhidas = ideias.filter((i) =>
-    (m2.ideiasSelecionadas || []).includes(i.id),
-  );
+  const escolhidas = ideias.filter((i) => (m2.ideiasSelecionadas || []).includes(i.id));
   const calendario = useMemo(() => montarCalendario(answers), [answers]);
   const stories = useMemo(() => sugestoesStories(answers), [answers]);
   const periodo = m2.periodo
@@ -1232,9 +1172,7 @@ export function M2Final({ answers, onReset }) {
           <Sparkles size={22} className="text-neutral-900" />
         </div>
         <Title>Seu planejamento de conteúdo está pronto</Title>
-        {periodo && (
-          <p className="text-[13px] text-neutral-400 mb-4">{periodo}</p>
-        )}
+        {periodo && <p className="text-[13px] text-neutral-400 mb-4">{periodo}</p>}
 
         <div className="flex items-center gap-2 mt-4 mb-2">
           <Layers size={14} className="text-yellow-600" />
@@ -1262,9 +1200,7 @@ export function M2Final({ answers, onReset }) {
         <div className="flex flex-col gap-2">
           {escolhidas.map((i) => (
             <Card key={i.id}>
-              <p className="text-[13px] text-neutral-700 leading-relaxed">
-                {i.texto}
-              </p>
+              <p className="text-[13px] text-neutral-700 leading-relaxed">{i.texto}</p>
               <p className="mt-1 text-[12px] text-neutral-400">
                 {i.pilar} · {i.formato}
               </p>
@@ -1302,10 +1238,7 @@ export function M2Final({ answers, onReset }) {
         </div>
         <ul className="flex flex-col gap-1.5">
           {stories.map((s, i) => (
-            <li
-              key={i}
-              className="text-[13px] text-neutral-600 leading-relaxed flex gap-2"
-            >
+            <li key={i} className="text-[13px] text-neutral-600 leading-relaxed flex gap-2">
               <span className="text-yellow-500 font-bold">•</span>
               <span>{s}</span>
             </li>
