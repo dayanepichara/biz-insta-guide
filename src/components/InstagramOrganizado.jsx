@@ -383,7 +383,9 @@ const AREA_POR_PERGUNTA = {
   const [answers, setAnswers] = useState({
     ...DEFAULT_ANSWERS,
     ...(persisted?.answers || {}),
+    m2: { ...DEFAULT_M2, ...(persisted?.answers?.m2 || {}) },
   });
+
   const [progress, setProgress] = useState({
     ...DEFAULT_PROGRESS,
     ...(persisted?.progress || {}),
