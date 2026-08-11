@@ -18,6 +18,21 @@ import {
   ChevronDown,
   MessageCircle,
 } from "lucide-react";
+import {
+  DEFAULT_M2,
+  MODULE2_STEPS,
+  M2Intro,
+  M2Pilares,
+  M2Periodo,
+  M2DataNegocio,
+  M2DatasComerciais,
+  M2Formatos,
+  M2Frequencia,
+  M2Ideias,
+  M2Calendario,
+  M2Final,
+} from "./Modulo2.jsx";
+
 /* ------------------------------------------------------------------ ARQUITETURA - answers + progress vivem num único fluxo de estado, com um "patch" central (patchAnswers / setProgress) — a persistência (safeLoad/safeSave/safeClear) só lê/escreve esse mesmo formato, então trocar de storage no futuro não exige mexer nas telas. - MODULE1_SECTIONS: config declarativa. Cada seção tem uma tela de entrada ("entry"). Seções sem "entry" ainda não foram construídas e aparecem como "Em breve" — novos módulos/seções entram como novos itens, sem mudar a navegação nem o hub. - screen + history: pilha simples (empilha ao avançar, desempilha no botão voltar). Também são persistidos. - STEP_GROUPS: mapeia cada sequência de telas para a barra de progresso, sem precisar de lógica especial por seção. ------------------------------------------------------------------- */ const FONT_DISPLAY =
   "'Manrope', system-ui, sans-serif";
 const FONT_BODY = "'Inter', system-ui, sans-serif";
