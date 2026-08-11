@@ -108,7 +108,12 @@ const STEP_GROUPS = [
     steps: REVISAO_STEPS,
     label: (i, n) => `Revisão do perfil · Passo ${i + 1} de ${n}`,
   },
+  {
+    steps: MODULE2_STEPS,
+    label: (i, n) => `Estratégia de conteúdo · Passo ${i + 1} de ${n}`,
+  },
 ];
+
 const DEFAULT_ANSWERS = {
   negocio: "",
   oferece: "",
