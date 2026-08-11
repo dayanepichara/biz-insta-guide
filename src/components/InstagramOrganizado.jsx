@@ -458,6 +458,16 @@ const AREA_POR_PERGUNTA = {
   function setAnswer(key, value) {
     patchAnswers({ [key]: value });
   }
+  function patchM2(patch) {
+    setAnswers((a) => ({ ...a, m2: { ...DEFAULT_M2, ...(a.m2 || {}), ...patch } }));
+  }
+  function resetModule2() {
+    // Apaga somente as respostas do Módulo 2. O Módulo 1 permanece salvo.
+    setAnswers((a) => ({ ...a, m2: { ...DEFAULT_M2 } }));
+    setHistory([]);
+    setScreen("m2Intro");
+  }
+
   function completeSection(sectionId, label, nextScreen = "module1Hub") {
     setProgress((p) => ({ ...p, [sectionId]: true }));
     setLastCompletedLabel(label);
