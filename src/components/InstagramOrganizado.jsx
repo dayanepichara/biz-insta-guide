@@ -129,7 +129,9 @@ const DEFAULT_ANSWERS = {
   whatsappMsgSeeded: false,
   destaquesSelecionados: [],
   teste5s: { quem: "", oQue: "", paraQuem: "", comoComprar: "" },
+  m2: DEFAULT_M2,
 };
+
 const DEFAULT_PROGRESS = {
   nomeArroba: false,
   foto: false,
