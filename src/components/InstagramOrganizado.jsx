@@ -777,7 +777,7 @@ const AREA_POR_PERGUNTA = {
                 completeSection(
                   "revisao",
                   "Revisão do perfil",
-                  "module2ComingSoon",
+                  "m2Intro",
                 )
               }
             />
@@ -785,6 +785,71 @@ const AREA_POR_PERGUNTA = {
           {screen === "module2ComingSoon" && (
             <Module2ComingSoon onBack={() => goTo("module1Hub")} />
           )}{" "}
+          {screen === "m2Intro" && (
+            <M2Intro answers={answers} onNext={() => goTo("m2Pilares")} />
+          )}{" "}
+          {screen === "m2Pilares" && (
+            <M2Pilares
+              answers={answers}
+              patchM2={patchM2}
+              onNext={() => goTo("m2Periodo")}
+            />
+          )}{" "}
+          {screen === "m2Periodo" && (
+            <M2Periodo
+              answers={answers}
+              patchM2={patchM2}
+              onNext={() => goTo("m2DataNegocio")}
+            />
+          )}{" "}
+          {screen === "m2DataNegocio" && (
+            <M2DataNegocio
+              answers={answers}
+              patchM2={patchM2}
+              onNext={() => goTo("m2DatasComerciais")}
+            />
+          )}{" "}
+          {screen === "m2DatasComerciais" && (
+            <M2DatasComerciais
+              answers={answers}
+              patchM2={patchM2}
+              onNext={() => goTo("m2Formatos")}
+            />
+          )}{" "}
+          {screen === "m2Formatos" && (
+            <M2Formatos
+              answers={answers}
+              patchM2={patchM2}
+              onNext={() => goTo("m2Frequencia")}
+            />
+          )}{" "}
+          {screen === "m2Frequencia" && (
+            <M2Frequencia
+              answers={answers}
+              patchM2={patchM2}
+              onNext={() => goTo("m2Ideias")}
+            />
+          )}{" "}
+          {screen === "m2Ideias" && (
+            <M2Ideias
+              answers={answers}
+              patchM2={patchM2}
+              onNext={() => goTo("m2Calendario")}
+            />
+          )}{" "}
+          {screen === "m2Calendario" && (
+            <M2Calendario
+              answers={answers}
+              onNext={() => {
+                patchM2({ concluido: true });
+                goTo("m2Final");
+              }}
+            />
+          )}{" "}
+          {screen === "m2Final" && (
+            <M2Final answers={answers} onReset={resetModule2} />
+          )}{" "}
+
         </div>{" "}
       </div>{" "}
       {showResetConfirm && (
