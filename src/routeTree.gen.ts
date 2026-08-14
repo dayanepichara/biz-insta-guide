@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiAnalisarFotoRouteImport } from './routes/api/analisar-foto'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAnalisarFotoRoute = ApiAnalisarFotoRouteImport.update({
+  id: '/api/analisar-foto',
+  path: '/api/analisar-foto',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/analisar-foto': typeof ApiAnalisarFotoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/analisar-foto': typeof ApiAnalisarFotoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/analisar-foto': typeof ApiAnalisarFotoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/api/analisar-foto'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/api/analisar-foto'
+  id: '__root__' | '/' | '/api/analisar-foto'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiAnalisarFotoRoute: typeof ApiAnalisarFotoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/analisar-foto': {
+      id: '/api/analisar-foto'
+      path: '/api/analisar-foto'
+      fullPath: '/api/analisar-foto'
+      preLoaderRoute: typeof ApiAnalisarFotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiAnalisarFotoRoute: ApiAnalisarFotoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
