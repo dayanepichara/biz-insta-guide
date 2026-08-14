@@ -1520,7 +1520,7 @@ function Foto2Interativa({ answers, patchAnswers, onFinish }) {
         {" "}
         <PrimaryButton onClick={onFinish} disabled={!answers.fotoEscolha}>
           {" "}
-          CONCLUIR FOTO DE PERFIL <ArrowRight size={17} />{" "}
+          CONTINUAR <ArrowRight size={17} />{" "}
         </PrimaryButton>{" "}
       </div>{" "}
     </div>
@@ -2471,6 +2471,17 @@ function Revisao3Preview({ answers, onFinish }) {
               </span>
             )}{" "}
           </div>{" "}
+          {answers.fotoAnalise?.analise?.fotoIdeal && (
+            <div className="mt-3 pt-3 border-t border-neutral-100">
+              {" "}
+              <p className="text-[11px] font-bold tracking-wide text-yellow-600 uppercase mb-1">
+                A foto que eu usaria no seu lugar
+              </p>{" "}
+              <p className="text-[12.5px] text-neutral-700 leading-relaxed">
+                {answers.fotoAnalise.analise.fotoIdeal}
+              </p>{" "}
+            </div>
+          )}{" "}
           {destaques.length > 0 && (
             <div className="mt-2 pt-2 border-t border-neutral-100 flex flex-wrap gap-1.5">
               {" "}

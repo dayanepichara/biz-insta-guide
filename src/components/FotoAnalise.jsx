@@ -36,7 +36,10 @@ function Eyebrow({ children }) {
 function Bloco({ titulo, children }) {
   return (
     <div className="bg-white border border-neutral-200 rounded-2xl p-4 mb-3">
-      <p className="text-[13px] font-extrabold text-neutral-900 mb-2" style={{ fontFamily: FONT_DISPLAY }}>
+      <p
+        className="text-[13px] font-extrabold text-neutral-900 mb-2"
+        style={{ fontFamily: FONT_DISPLAY }}
+      >
         {titulo}
       </p>
       {children}
@@ -369,7 +372,11 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
             className="w-28 h-28 rounded-full border-2 border-dashed border-neutral-300 bg-neutral-50 flex items-center justify-center overflow-hidden active:scale-[0.98] transition-all"
           >
             {preview ? (
-              <img src={preview} alt="Prévia da sua foto de perfil" className="w-full h-full object-cover" />
+              <img
+                src={preview}
+                alt="Prévia da sua foto de perfil"
+                className="w-full h-full object-cover"
+              />
             ) : (
               <Camera size={26} className="text-neutral-400" />
             )}
@@ -468,7 +475,9 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
                 </p>
               )}
               {analise.avaliacao && (
-                <p className="text-[13.5px] text-neutral-700 leading-relaxed">{analise.avaliacao}</p>
+                <p className="text-[13.5px] text-neutral-700 leading-relaxed">
+                  {analise.avaliacao}
+                </p>
               )}
               {analise.comunicaNegocio && (
                 <p className="text-[13.5px] text-neutral-700 leading-relaxed mt-2">
