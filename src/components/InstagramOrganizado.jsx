@@ -32,6 +32,7 @@ import {
   M2Calendario,
   M2Final,
 } from "./Modulo2.jsx";
+import FotoAnalise from "./FotoAnalise.jsx";
 
 /* ------------------------------------------------------------------ ARQUITETURA - answers + progress vivem num único fluxo de estado, com um "patch" central (patchAnswers / setProgress) — a persistência (safeLoad/safeSave/safeClear) só lê/escreve esse mesmo formato, então trocar de storage no futuro não exige mexer nas telas. - MODULE1_SECTIONS: config declarativa. Cada seção tem uma tela de entrada ("entry"). Seções sem "entry" ainda não foram construídas e aparecem como "Em breve" — novos módulos/seções entram como novos itens, sem mudar a navegação nem o hub. - screen + history: pilha simples (empilha ao avançar, desempilha no botão voltar). Também são persistidos. - STEP_GROUPS: mapeia cada sequência de telas para a barra de progresso, sem precisar de lógica especial por seção. ------------------------------------------------------------------- */ const FONT_DISPLAY =
   "'Manrope', system-ui, sans-serif";
@@ -65,7 +66,7 @@ const MODULE1_SECTIONS = [
 ];
 const ONBOARDING_STEPS = ["welcome", "q1", "q2", "q3", "q4", "summary"];
 const NAMEAT_STEPS = ["explainAt", "explainNome", "howto", "interactive", "feedback"];
-const FOTO_STEPS = ["foto1", "foto2"];
+const FOTO_STEPS = ["foto1", "foto2", "foto3"];
 const BIO_STEPS = ["bio1", "bioStep1", "bioStep2", "bioStep3", "bioStep4", "bioResult"];
 const LINK_STEPS = ["link1", "link2", "link3", "link4"];
 const DESTAQUES_STEPS = ["destaques1", "destaques2", "destaques3", "destaques4"];
@@ -105,6 +106,8 @@ const DEFAULT_ANSWERS = {
   nome: "",
   clareza: "",
   fotoEscolha: "",
+  fotoAnalise: null,
+  fotoIaUsada: false,
   fotoChecklist: {
     reconhecivel: false,
     legivelPequena: false,
@@ -589,6 +592,13 @@ const AREA_POR_PERGUNTA = {
           {screen === "foto1" && <Foto1Explica answers={answers} onNext={() => goTo("foto2")} />}{" "}
           {screen === "foto2" && (
             <Foto2Interativa
+              answers={answers}
+              patchAnswers={patchAnswers}
+              onFinish={() => goTo("foto3")}
+            />
+          )}{" "}
+          {screen === "foto3" && (
+            <FotoAnalise
               answers={answers}
               patchAnswers={patchAnswers}
               onFinish={() => completeSection("foto", "Foto de perfil")}
@@ -1510,7 +1520,7 @@ function Foto2Interativa({ answers, patchAnswers, onFinish }) {
         {" "}
         <PrimaryButton onClick={onFinish} disabled={!answers.fotoEscolha}>
           {" "}
-          CONCLUIR FOTO DE PERFIL <ArrowRight size={17} />{" "}
+          CONTINUAR <ArrowRight size={17} />{" "}
         </PrimaryButton>{" "}
       </div>{" "}
     </div>
@@ -2461,6 +2471,17 @@ function Revisao3Preview({ answers, onFinish }) {
               </span>
             )}{" "}
           </div>{" "}
+          {answers.fotoAnalise?.analise?.fotoIdeal && (
+            <div className="mt-3 pt-3 border-t border-neutral-100">
+              {" "}
+              <p className="text-[11px] font-bold tracking-wide text-yellow-600 uppercase mb-1">
+                A foto que eu usaria no seu lugar
+              </p>{" "}
+              <p className="text-[12.5px] text-neutral-700 leading-relaxed">
+                {answers.fotoAnalise.analise.fotoIdeal}
+              </p>{" "}
+            </div>
+          )}{" "}
           {destaques.length > 0 && (
             <div className="mt-2 pt-2 border-t border-neutral-100 flex flex-wrap gap-1.5">
               {" "}
