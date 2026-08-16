@@ -1245,7 +1245,7 @@ function HowTo({ onNext }) {
     </div>
   );
 }
-function NameAtInteractive({ answers, setAnswer, onNext }) {
+) {
   const podeAvancar = answers.clareza !== "";
   const options = ["SIM", "NÃO", "NÃO TENHO CERTEZA"];
   return (
@@ -1317,7 +1317,7 @@ function NameAtInteractive({ answers, setAnswer, onNext }) {
     </div>
   );
 }
-function NameAtFeedback({ clareza, onFinish }) {
+) {
   const precisaAjustar = clareza === "NÃO" || clareza === "NÃO TENHO CERTEZA";
   return (
     <div className="h-full flex flex-col justify-between">
@@ -1460,19 +1460,7 @@ function Foto1Explica({ answers, onNext }) {
     </div>
   );
 }
-const FOTO_ORIENTACOES = {
-  "Meu logotipo":
-    "Boa escolha para reforçar a marca. Confira se ele fica legível bem pequeno e sem excesso de detalhes.",
-  "Minha foto":
-    "Funciona muito bem para quem atende pessoalmente. Prefira um fundo neutro e boa iluminação no rosto.",
-  "Foto de produto":
-    "Pode funcionar, mas tente centralizar bem o produto e evitar fundo poluído — em miniatura, detalhes se perdem.",
-  "Outra imagem":
-    "Vale revisar: imagens genéricas dificultam o reconhecimento. O ideal é algo que represente só o seu negócio.",
-  "Ainda não tenho":
-    "Sem problema. Comece com algo simples: seu logotipo, se tiver, ou uma foto sua com boa iluminação.",
-};
-function Foto2Interativa({ answers, patchAnswers, onFinish }) {
+) {
   const checklist = answers.fotoChecklist;
   const checklistItems = [
     { key: "reconhecivel", label: "é fácil de reconhecer?" },
@@ -2444,7 +2432,7 @@ function Revisao2Teste5s({ answers, setAnswer, onNext }) {
     </div>
   );
 }
-function Revisao3Preview({ answers, onFinish }) {
+) {
   const destaques = answers.destaquesSelecionados || [];
   return (
     <div className="h-full flex flex-col justify-between">

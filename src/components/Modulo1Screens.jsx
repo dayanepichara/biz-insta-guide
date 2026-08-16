@@ -43,8 +43,7 @@ function Titulo({ children }) {
 }
 
 function Bloco({ titulo, children, tom }) {
-  const cor =
-    tom === "amarelo" ? "bg-yellow-50 border-yellow-200" : "bg-white border-neutral-200";
+  const cor = tom === "amarelo" ? "bg-yellow-50 border-yellow-200" : "bg-white border-neutral-200";
   return (
     <div className={`${cor} border rounded-2xl p-4 mb-3`}>
       <p
@@ -345,7 +344,11 @@ export function ArrobaAnalise({ answers, patchAnswers, onNext }) {
   const [escolha, setEscolha] = useState("");
   const [manual, setManual] = useState(answers.arroba || "");
   const analise = useMemo(
-    () => analisarArroba(temInstagram === "sim" ? atual : "", { ...answers, nomeAtual: answers.nomeAtual }),
+    () =>
+      analisarArroba(temInstagram === "sim" ? atual : "", {
+        ...answers,
+        nomeAtual: answers.nomeAtual,
+      }),
     [atual, answers, temInstagram],
   );
   return (
