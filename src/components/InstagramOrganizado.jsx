@@ -33,6 +33,14 @@ import {
   M2Final,
 } from "./Modulo2.jsx";
 import FotoAnalise from "./FotoAnalise.jsx";
+import {
+  PerfilStatus,
+  NomeAnalise,
+  ArrobaAnalise,
+  BioDiagnostico,
+  FotoRecomendacao,
+  PerfilRecomendado,
+} from "./Modulo1Screens.jsx";
 
 /* ------------------------------------------------------------------ ARQUITETURA - answers + progress vivem num único fluxo de estado, com um "patch" central (patchAnswers / setProgress) — a persistência (safeLoad/safeSave/safeClear) só lê/escreve esse mesmo formato, então trocar de storage no futuro não exige mexer nas telas. - MODULE1_SECTIONS: config declarativa. Cada seção tem uma tela de entrada ("entry"). Seções sem "entry" ainda não foram construídas e aparecem como "Em breve" — novos módulos/seções entram como novos itens, sem mudar a navegação nem o hub. - screen + history: pilha simples (empilha ao avançar, desempilha no botão voltar). Também são persistidos. - STEP_GROUPS: mapeia cada sequência de telas para a barra de progresso, sem precisar de lógica especial por seção. ------------------------------------------------------------------- */ const FONT_DISPLAY =
   "'Manrope', system-ui, sans-serif";
@@ -64,9 +72,9 @@ const MODULE1_SECTIONS = [
     entry: "revisao1",
   },
 ];
-const ONBOARDING_STEPS = ["welcome", "q1", "q2", "q3", "q4", "summary"];
-const NAMEAT_STEPS = ["explainAt", "explainNome", "howto", "interactive", "feedback"];
-const FOTO_STEPS = ["foto1", "foto2", "foto3"];
+const ONBOARDING_STEPS = ["welcome", "q1", "q2", "q3", "q4", "summary", "perfilStatus"];
+const NAMEAT_STEPS = ["explainAt", "explainNome", "howto", "nomeAnalise", "arrobaAnalise"];
+const FOTO_STEPS = ["foto1", "fotoRec", "foto3"];
 const BIO_STEPS = ["bio1", "bioStep1", "bioStep2", "bioStep3", "bioStep4", "bioResult"];
 const LINK_STEPS = ["link1", "link2", "link3", "link4"];
 const DESTAQUES_STEPS = ["destaques1", "destaques2", "destaques3", "destaques4"];
@@ -104,6 +112,11 @@ const DEFAULT_ANSWERS = {
   objetivo: "",
   arroba: "",
   nome: "",
+  temInstagram: "",
+  nomeAtual: "",
+  arrobaAtual: "",
+  bioAtual: "",
+  fotoLocalFeita: false,
   clareza: "",
   fotoEscolha: "",
   fotoAnalise: null,
@@ -553,7 +566,14 @@ const AREA_POR_PERGUNTA = {
             />
           )}{" "}
           {screen === "summary" && (
-            <DiagnosticSummary answers={answers} onStart={() => goTo("module1Hub")} />
+            <DiagnosticSummary answers={answers} onStart={() => goTo("perfilStatus")} />
+          )}{" "}
+          {screen === "perfilStatus" && (
+            <PerfilStatus
+              value={answers.temInstagram}
+              onSelect={(v) => setAnswer("temInstagram", v)}
+              onNext={() => goTo("module1Hub")}
+            />
           )}{" "}
           {screen === "module1Hub" && (
             <Module1Hub
@@ -575,26 +595,27 @@ const AREA_POR_PERGUNTA = {
               onNext={() => goTo("howto")}
             />
           )}{" "}
-          {screen === "howto" && <HowTo onNext={() => goTo("interactive")} />}{" "}
-          {screen === "interactive" && (
-            <NameAtInteractive
-              answers={answers}
-              setAnswer={setAnswer}
-              onNext={() => goTo("feedback")}
-            />
-          )}{" "}
-          {screen === "feedback" && (
-            <NameAtFeedback
-              clareza={answers.clareza}
-              onFinish={() => completeSection("nomeArroba", "Nome e @")}
-            />
-          )}{" "}
-          {screen === "foto1" && <Foto1Explica answers={answers} onNext={() => goTo("foto2")} />}{" "}
-          {screen === "foto2" && (
-            <Foto2Interativa
+          {screen === "howto" && <HowTo onNext={() => goTo("nomeAnalise")} />}{" "}
+          {screen === "nomeAnalise" && (
+            <NomeAnalise
               answers={answers}
               patchAnswers={patchAnswers}
-              onFinish={() => goTo("foto3")}
+              onNext={() => goTo("arrobaAnalise")}
+            />
+          )}{" "}
+          {screen === "arrobaAnalise" && (
+            <ArrobaAnalise
+              answers={answers}
+              patchAnswers={patchAnswers}
+              onNext={() => completeSection("nomeArroba", "Nome e @")}
+            />
+          )}{" "}
+          {screen === "foto1" && <Foto1Explica answers={answers} onNext={() => goTo("fotoRec")} />}{" "}
+          {screen === "fotoRec" && (
+            <FotoRecomendacao
+              answers={answers}
+              patchAnswers={patchAnswers}
+              onNext={() => goTo("foto3")}
             />
           )}{" "}
           {screen === "foto3" && (
@@ -659,9 +680,9 @@ const AREA_POR_PERGUNTA = {
             />
           )}{" "}
           {screen === "bioResult" && (
-            <BioResult
+            <BioDiagnostico
               answers={answers}
-              setAnswer={setAnswer}
+              patchAnswers={patchAnswers}
               onFinish={() => completeSection("bio", "Bio")}
             />
           )}{" "}
@@ -708,7 +729,7 @@ const AREA_POR_PERGUNTA = {
             />
           )}{" "}
           {screen === "revisao3" && (
-            <Revisao3Preview
+            <PerfilRecomendado
               answers={answers}
               onFinish={() => completeSection("revisao", "Revisão do perfil", "m2Intro")}
             />
@@ -1224,112 +1245,6 @@ function HowTo({ onNext }) {
     </div>
   );
 }
-function NameAtInteractive({ answers, setAnswer, onNext }) {
-  const podeAvancar = answers.clareza !== "";
-  const options = ["SIM", "NÃO", "NÃO TENHO CERTEZA"];
-  return (
-    <div className="h-full flex flex-col justify-between">
-      {" "}
-      <div>
-        {" "}
-        <SectionEyebrow>Nome, @ e foto de perfil</SectionEyebrow>{" "}
-        <h2
-          className="text-[19px] font-extrabold text-neutral-900 mb-5"
-          style={{ fontFamily: FONT_DISPLAY }}
-        >
-          {" "}
-          Agora vamos olhar o seu{" "}
-        </h2>{" "}
-        <label className="text-[12.5px] font-bold text-neutral-500 mb-1.5 block">
-          Seu @ atual
-        </label>{" "}
-        <input
-          value={answers.arroba}
-          onChange={(e) => setAnswer("arroba", e.target.value)}
-          placeholder="@seuusuario"
-          className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-[14.5px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 mb-4"
-        />{" "}
-        <label className="text-[12.5px] font-bold text-neutral-500 mb-1.5 block">
-          Seu Nome atual
-        </label>{" "}
-        <input
-          value={answers.nome}
-          onChange={(e) => setAnswer("nome", e.target.value)}
-          placeholder="Como está o campo Nome hoje"
-          className="w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-[14.5px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 mb-5"
-        />{" "}
-        {(answers.arroba || answers.nome) && (
-          <div className="mb-5">
-            {" "}
-            <ProfilePreview
-              arroba={answers.arroba || "@seuusuario"}
-              nome={answers.nome || "Seu nome aqui"}
-            />{" "}
-          </div>
-        )}{" "}
-        <p className="text-[14px] font-bold text-neutral-800 mb-3 leading-snug">
-          {" "}
-          Se uma pessoa que nunca viu sua empresa entrar no seu perfil, ela consegue entender o que
-          você faz?{" "}
-        </p>{" "}
-        <div className="flex flex-col gap-2">
-          {" "}
-          {options.map((opt) => (
-            <button
-              key={opt}
-              onClick={() => setAnswer("clareza", opt)}
-              className={`w-full text-left px-4 py-3 rounded-2xl border text-[13.5px] font-bold transition-all ${answers.clareza === opt ? "bg-yellow-400 border-yellow-400 text-neutral-900" : "bg-neutral-50 border-neutral-200 text-neutral-700 hover:border-neutral-300"}`}
-            >
-              {" "}
-              {opt}{" "}
-            </button>
-          ))}{" "}
-        </div>{" "}
-      </div>{" "}
-      <div className="mt-5">
-        {" "}
-        <PrimaryButton onClick={onNext} disabled={!podeAvancar}>
-          {" "}
-          CONTINUAR <ArrowRight size={17} />{" "}
-        </PrimaryButton>{" "}
-      </div>{" "}
-    </div>
-  );
-}
-function NameAtFeedback({ clareza, onFinish }) {
-  const precisaAjustar = clareza === "NÃO" || clareza === "NÃO TENHO CERTEZA";
-  return (
-    <div className="h-full flex flex-col justify-between">
-      {" "}
-      <div>
-        {" "}
-        <div className="w-12 h-12 rounded-2xl bg-yellow-400 flex items-center justify-center mb-6">
-          {" "}
-          <Check size={22} className="text-neutral-900" strokeWidth={3} />{" "}
-        </div>{" "}
-        <h2
-          className="text-[20px] font-extrabold text-neutral-900 mb-3 leading-snug"
-          style={{ fontFamily: FONT_DISPLAY }}
-        >
-          {" "}
-          {precisaAjustar
-            ? "Sem problema. Nas próximas etapas vamos melhorar isso juntos."
-            : "Ótimo. Seu Nome e @ já ajudam quem chega no seu perfil a entender o seu negócio."}{" "}
-        </h2>{" "}
-        <p className="text-[14px] text-neutral-500 leading-relaxed">
-          {" "}
-          {precisaAjustar
-            ? "Na Bio e na Foto de perfil vamos deixar tudo alinhado para contar rapidamente o que você faz."
-            : "Continue assim nas próximas áreas do seu perfil para manter essa clareza em todo o Instagram."}{" "}
-        </p>{" "}
-      </div>{" "}
-      <PrimaryButton onClick={onFinish}>
-        {" "}
-        CONTINUAR <ArrowRight size={17} />{" "}
-      </PrimaryButton>{" "}
-    </div>
-  );
-}
 /* ------------------------ Foto de perfil ------------------------ */ function MiniAvatarBoa() {
   return (
     <div className="w-16 h-16 rounded-full bg-neutral-900 flex items-center justify-center flex-none">
@@ -1432,93 +1347,6 @@ function Foto1Explica({ answers, onNext }) {
       <div className="mt-4">
         {" "}
         <PrimaryButton onClick={onNext}>
-          {" "}
-          CONTINUAR <ArrowRight size={17} />{" "}
-        </PrimaryButton>{" "}
-      </div>{" "}
-    </div>
-  );
-}
-const FOTO_ORIENTACOES = {
-  "Meu logotipo":
-    "Boa escolha para reforçar a marca. Confira se ele fica legível bem pequeno e sem excesso de detalhes.",
-  "Minha foto":
-    "Funciona muito bem para quem atende pessoalmente. Prefira um fundo neutro e boa iluminação no rosto.",
-  "Foto de produto":
-    "Pode funcionar, mas tente centralizar bem o produto e evitar fundo poluído — em miniatura, detalhes se perdem.",
-  "Outra imagem":
-    "Vale revisar: imagens genéricas dificultam o reconhecimento. O ideal é algo que represente só o seu negócio.",
-  "Ainda não tenho":
-    "Sem problema. Comece com algo simples: seu logotipo, se tiver, ou uma foto sua com boa iluminação.",
-};
-function Foto2Interativa({ answers, patchAnswers, onFinish }) {
-  const checklist = answers.fotoChecklist;
-  const checklistItems = [
-    { key: "reconhecivel", label: "é fácil de reconhecer?" },
-    { key: "legivelPequena", label: "fica legível pequena?" },
-    { key: "representaNegocio", label: "representa meu negócio?" },
-    { key: "combinaMarca", label: "combina com minha marca?" },
-  ];
-  const opcoes = [
-    "Meu logotipo",
-    "Minha foto",
-    "Foto de produto",
-    "Outra imagem",
-    "Ainda não tenho",
-  ];
-  function toggleChecklist(key) {
-    patchAnswers({ fotoChecklist: { ...checklist, [key]: !checklist[key] } });
-  }
-  return (
-    <div className="h-full flex flex-col justify-between">
-      {" "}
-      <div>
-        {" "}
-        <SectionEyebrow>Foto de perfil</SectionEyebrow>{" "}
-        <h2
-          className="text-[19px] font-extrabold text-neutral-900 mb-4"
-          style={{ fontFamily: FONT_DISPLAY }}
-        >
-          {" "}
-          Minha foto...{" "}
-        </h2>{" "}
-        <div className="flex flex-col gap-2 mb-6">
-          {" "}
-          {checklistItems.map((item) => (
-            <ChecklistToggle
-              key={item.key}
-              checked={checklist[item.key]}
-              label={item.label}
-              onClick={() => toggleChecklist(item.key)}
-            />
-          ))}{" "}
-        </div>{" "}
-        <p className="text-[14px] font-bold text-neutral-800 mb-3">O que você usa hoje?</p>{" "}
-        <div className="flex flex-col gap-2 mb-4">
-          {" "}
-          {opcoes.map((opt) => (
-            <button
-              key={opt}
-              onClick={() => patchAnswers({ fotoEscolha: opt })}
-              className={`w-full text-left px-4 py-3 rounded-2xl border text-[13.5px] font-bold transition-all ${answers.fotoEscolha === opt ? "bg-yellow-400 border-yellow-400 text-neutral-900" : "bg-neutral-50 border-neutral-200 text-neutral-700 hover:border-neutral-300"}`}
-            >
-              {" "}
-              {opt}{" "}
-            </button>
-          ))}{" "}
-        </div>{" "}
-        {answers.fotoEscolha && (
-          <div className="bg-neutral-50 border border-neutral-100 rounded-2xl p-4">
-            {" "}
-            <p className="text-[13.5px] text-neutral-700 leading-relaxed">
-              {FOTO_ORIENTACOES[answers.fotoEscolha]}
-            </p>{" "}
-          </div>
-        )}{" "}
-      </div>{" "}
-      <div className="mt-5">
-        {" "}
-        <PrimaryButton onClick={onFinish} disabled={!answers.fotoEscolha}>
           {" "}
           CONTINUAR <ArrowRight size={17} />{" "}
         </PrimaryButton>{" "}
@@ -1817,14 +1645,15 @@ function BioResult({ answers, setAnswer, onFinish }) {
           style={{ fontFamily: FONT_DISPLAY }}
         >
           {" "}
-          O que é o link do perfil?{" "}
+          O que são os links do perfil?{" "}
         </h2>{" "}
         <div className="bg-neutral-50 border border-neutral-100 rounded-2xl p-4 mb-4">
           {" "}
           <p className="text-[14.5px] text-neutral-700 leading-relaxed">
             {" "}
-            É a área abaixo da bio que leva a pessoa do Instagram para uma próxima ação — o único
-            link clicável do perfil fora dos stories.{" "}
+            É a área abaixo da bio onde você pode adicionar links para levar a pessoa do Instagram
+            para uma próxima ação, como abrir o WhatsApp, acessar um cardápio, fazer um pedido,
+            solicitar orçamento, visitar seu site ou agendar um atendimento.{" "}
           </p>{" "}
         </div>{" "}
         <p className="text-[13px] font-bold text-neutral-500 uppercase tracking-wide mb-2">
@@ -2417,107 +2246,6 @@ function Revisao2Teste5s({ answers, setAnswer, onNext }) {
         <PrimaryButton onClick={onNext} disabled={!respondidas}>
           {" "}
           VER MEU PERFIL ORGANIZADO <ArrowRight size={17} />{" "}
-        </PrimaryButton>{" "}
-      </div>{" "}
-    </div>
-  );
-}
-function Revisao3Preview({ answers, onFinish }) {
-  const destaques = answers.destaquesSelecionados || [];
-  return (
-    <div className="h-full flex flex-col justify-between">
-      {" "}
-      <div>
-        {" "}
-        <SectionEyebrow>Perfil organizado</SectionEyebrow>{" "}
-        <div className="bg-white border border-neutral-200 rounded-2xl p-4 mb-5">
-          {" "}
-          <div className="flex items-center gap-3 mb-3">
-            {" "}
-            <div className="w-14 h-14 rounded-full bg-neutral-100 flex items-center justify-center flex-none">
-              {" "}
-              <User size={22} className="text-neutral-300" />{" "}
-            </div>{" "}
-            <div className="min-w-0">
-              {" "}
-              <p className="text-[15px] font-extrabold text-neutral-900 truncate">
-                {answers.nome || "Seu nome aqui"}
-              </p>{" "}
-              <p className="text-[12.5px] text-neutral-400 truncate">
-                {answers.arroba || "@seuusuario"}
-              </p>{" "}
-            </div>{" "}
-          </div>{" "}
-          {answers.bioFinal && (
-            <p className="text-[12.5px] text-neutral-700 leading-relaxed whitespace-pre-line mb-3">
-              {answers.bioFinal}
-            </p>
-          )}{" "}
-          <div className="flex flex-wrap gap-1.5 mb-1">
-            {" "}
-            {answers.fotoEscolha && (
-              <span className="px-2.5 py-1 rounded-full bg-neutral-50 border border-neutral-200 text-[10.5px] font-semibold text-neutral-500">
-                {" "}
-                Foto: {answers.fotoEscolha}{" "}
-              </span>
-            )}{" "}
-            {answers.bioProximoPasso && (
-              <span className="px-2.5 py-1 rounded-full bg-neutral-50 border border-neutral-200 text-[10.5px] font-semibold text-neutral-500">
-                {" "}
-                CTA:{" "}
-                {answers.bioProximoPasso === "Outro"
-                  ? answers.bioProximoPassoOutro
-                  : answers.bioProximoPasso}{" "}
-              </span>
-            )}{" "}
-          </div>{" "}
-          {answers.fotoAnalise?.analise?.fotoIdeal && (
-            <div className="mt-3 pt-3 border-t border-neutral-100">
-              {" "}
-              <p className="text-[11px] font-bold tracking-wide text-yellow-600 uppercase mb-1">
-                A foto que eu usaria no seu lugar
-              </p>{" "}
-              <p className="text-[12.5px] text-neutral-700 leading-relaxed">
-                {answers.fotoAnalise.analise.fotoIdeal}
-              </p>{" "}
-            </div>
-          )}{" "}
-          {destaques.length > 0 && (
-            <div className="mt-2 pt-2 border-t border-neutral-100 flex flex-wrap gap-1.5">
-              {" "}
-              {destaques.map((d) => (
-                <span
-                  key={d}
-                  className="w-8 h-8 rounded-full bg-neutral-100 border border-neutral-200 flex items-center justify-center text-[9px] font-bold text-neutral-500 text-center leading-none"
-                >
-                  {" "}
-                  {d.slice(0, 3)}{" "}
-                </span>
-              ))}{" "}
-            </div>
-          )}{" "}
-        </div>{" "}
-        <div className="bg-yellow-400 rounded-2xl p-5 mb-4 text-center">
-          {" "}
-          <p
-            className="text-[16px] font-extrabold text-neutral-900 mb-1"
-            style={{ fontFamily: FONT_DISPLAY }}
-          >
-            {" "}
-            Pronto. Você organizou a base do seu Instagram.{" "}
-          </p>{" "}
-        </div>{" "}
-        <p className="text-[13.5px] text-neutral-500 leading-relaxed">
-          {" "}
-          Agora começa a segunda parte: transformar esse perfil em conteúdo que ajuda sua empresa a
-          ser encontrada, lembrada e escolhida.{" "}
-        </p>{" "}
-      </div>{" "}
-      <div className="mt-5">
-        {" "}
-        <PrimaryButton onClick={onFinish}>
-          {" "}
-          COMEÇAR MINHA ESTRATÉGIA DE CONTEÚDO <ArrowRight size={17} />{" "}
         </PrimaryButton>{" "}
       </div>{" "}
     </div>
