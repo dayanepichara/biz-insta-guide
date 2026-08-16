@@ -291,6 +291,7 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
       setPreview(dataUrl);
       setImagemB64(dataUrl);
       setLocal(medido);
+      if (!answers.fotoLocalFeita) patchAnswers({ fotoLocalFeita: true });
     } catch {
       setErroUpload("Não consegui abrir essa imagem. Tente outra.");
     }
@@ -354,8 +355,10 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
           Analisar a sua foto de perfil
         </h2>
         <p className="text-[13.5px] text-neutral-600 leading-relaxed mb-5">
-          Envie a foto que você usa hoje (ou uma que esteja pensando em usar). Ela é analisada na
-          hora e <strong>não fica guardada em lugar nenhum</strong>.
+          {answers.temInstagram === "nao"
+            ? "Se você já tem uma foto em mente, envie aqui que eu analiso. Se ainda não tiver, pode seguir sem enviar — a recomendação da tela anterior continua valendo."
+            : "Envie a foto que você usa hoje (ou uma que esteja pensando em usar)."}{" "}
+          <strong>Ela é analisada na hora e não fica guardada em lugar nenhum.</strong>
         </p>
 
         <input
