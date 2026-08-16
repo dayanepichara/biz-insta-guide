@@ -33,6 +33,14 @@ import {
   M2Final,
 } from "./Modulo2.jsx";
 import FotoAnalise from "./FotoAnalise.jsx";
+import {
+  PerfilStatus,
+  NomeAnalise,
+  ArrobaAnalise,
+  BioDiagnostico,
+  FotoRecomendacao,
+  PerfilRecomendado,
+} from "./Modulo1Screens.jsx";
 
 /* ------------------------------------------------------------------ ARQUITETURA - answers + progress vivem num único fluxo de estado, com um "patch" central (patchAnswers / setProgress) — a persistência (safeLoad/safeSave/safeClear) só lê/escreve esse mesmo formato, então trocar de storage no futuro não exige mexer nas telas. - MODULE1_SECTIONS: config declarativa. Cada seção tem uma tela de entrada ("entry"). Seções sem "entry" ainda não foram construídas e aparecem como "Em breve" — novos módulos/seções entram como novos itens, sem mudar a navegação nem o hub. - screen + history: pilha simples (empilha ao avançar, desempilha no botão voltar). Também são persistidos. - STEP_GROUPS: mapeia cada sequência de telas para a barra de progresso, sem precisar de lógica especial por seção. ------------------------------------------------------------------- */ const FONT_DISPLAY =
   "'Manrope', system-ui, sans-serif";
@@ -64,9 +72,9 @@ const MODULE1_SECTIONS = [
     entry: "revisao1",
   },
 ];
-const ONBOARDING_STEPS = ["welcome", "q1", "q2", "q3", "q4", "summary"];
-const NAMEAT_STEPS = ["explainAt", "explainNome", "howto", "interactive", "feedback"];
-const FOTO_STEPS = ["foto1", "foto2", "foto3"];
+const ONBOARDING_STEPS = ["welcome", "q1", "q2", "q3", "q4", "summary", "perfilStatus"];
+const NAMEAT_STEPS = ["explainAt", "explainNome", "howto", "nomeAnalise", "arrobaAnalise"];
+const FOTO_STEPS = ["foto1", "fotoRec", "foto3"];
 const BIO_STEPS = ["bio1", "bioStep1", "bioStep2", "bioStep3", "bioStep4", "bioResult"];
 const LINK_STEPS = ["link1", "link2", "link3", "link4"];
 const DESTAQUES_STEPS = ["destaques1", "destaques2", "destaques3", "destaques4"];
@@ -104,6 +112,11 @@ const DEFAULT_ANSWERS = {
   objetivo: "",
   arroba: "",
   nome: "",
+  temInstagram: "",
+  nomeAtual: "",
+  arrobaAtual: "",
+  bioAtual: "",
+  fotoLocalFeita: false,
   clareza: "",
   fotoEscolha: "",
   fotoAnalise: null,
@@ -553,7 +566,14 @@ const AREA_POR_PERGUNTA = {
             />
           )}{" "}
           {screen === "summary" && (
-            <DiagnosticSummary answers={answers} onStart={() => goTo("module1Hub")} />
+            <DiagnosticSummary answers={answers} onStart={() => goTo("perfilStatus")} />
+          )}{" "}
+          {screen === "perfilStatus" && (
+            <PerfilStatus
+              value={answers.temInstagram}
+              onSelect={(v) => setAnswer("temInstagram", v)}
+              onNext={() => goTo("module1Hub")}
+            />
           )}{" "}
           {screen === "module1Hub" && (
             <Module1Hub
@@ -575,26 +595,27 @@ const AREA_POR_PERGUNTA = {
               onNext={() => goTo("howto")}
             />
           )}{" "}
-          {screen === "howto" && <HowTo onNext={() => goTo("interactive")} />}{" "}
-          {screen === "interactive" && (
-            <NameAtInteractive
-              answers={answers}
-              setAnswer={setAnswer}
-              onNext={() => goTo("feedback")}
-            />
-          )}{" "}
-          {screen === "feedback" && (
-            <NameAtFeedback
-              clareza={answers.clareza}
-              onFinish={() => completeSection("nomeArroba", "Nome e @")}
-            />
-          )}{" "}
-          {screen === "foto1" && <Foto1Explica answers={answers} onNext={() => goTo("foto2")} />}{" "}
-          {screen === "foto2" && (
-            <Foto2Interativa
+          {screen === "howto" && <HowTo onNext={() => goTo("nomeAnalise")} />}{" "}
+          {screen === "nomeAnalise" && (
+            <NomeAnalise
               answers={answers}
               patchAnswers={patchAnswers}
-              onFinish={() => goTo("foto3")}
+              onNext={() => goTo("arrobaAnalise")}
+            />
+          )}{" "}
+          {screen === "arrobaAnalise" && (
+            <ArrobaAnalise
+              answers={answers}
+              patchAnswers={patchAnswers}
+              onNext={() => completeSection("nomeArroba", "Nome e @")}
+            />
+          )}{" "}
+          {screen === "foto1" && <Foto1Explica answers={answers} onNext={() => goTo("fotoRec")} />}{" "}
+          {screen === "fotoRec" && (
+            <FotoRecomendacao
+              answers={answers}
+              patchAnswers={patchAnswers}
+              onNext={() => goTo("foto3")}
             />
           )}{" "}
           {screen === "foto3" && (
@@ -659,9 +680,9 @@ const AREA_POR_PERGUNTA = {
             />
           )}{" "}
           {screen === "bioResult" && (
-            <BioResult
+            <BioDiagnostico
               answers={answers}
-              setAnswer={setAnswer}
+              patchAnswers={patchAnswers}
               onFinish={() => completeSection("bio", "Bio")}
             />
           )}{" "}
@@ -708,7 +729,7 @@ const AREA_POR_PERGUNTA = {
             />
           )}{" "}
           {screen === "revisao3" && (
-            <Revisao3Preview
+            <PerfilRecomendado
               answers={answers}
               onFinish={() => completeSection("revisao", "Revisão do perfil", "m2Intro")}
             />
@@ -1817,14 +1838,15 @@ function BioResult({ answers, setAnswer, onFinish }) {
           style={{ fontFamily: FONT_DISPLAY }}
         >
           {" "}
-          O que é o link do perfil?{" "}
+          O que são os links do perfil?{" "}
         </h2>{" "}
         <div className="bg-neutral-50 border border-neutral-100 rounded-2xl p-4 mb-4">
           {" "}
           <p className="text-[14.5px] text-neutral-700 leading-relaxed">
             {" "}
-            É a área abaixo da bio que leva a pessoa do Instagram para uma próxima ação — o único
-            link clicável do perfil fora dos stories.{" "}
+            É a área abaixo da bio onde você pode adicionar links para levar a pessoa do Instagram
+            para uma próxima ação, como abrir o WhatsApp, acessar um cardápio, fazer um pedido,
+            solicitar orçamento, visitar seu site ou agendar um atendimento.{" "}
           </p>{" "}
         </div>{" "}
         <p className="text-[13px] font-bold text-neutral-500 uppercase tracking-wide mb-2">
