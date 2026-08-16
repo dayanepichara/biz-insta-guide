@@ -123,10 +123,10 @@ export function palavrasChave(answers) {
 export function categoriaCurta(answers) {
   const bruto = (answers.oferece || answers.negocio || "").trim();
   if (!bruto) return "";
-  const palavras = bruto
-    .replace(/\s+/g, " ")
-    .split(" ")
-    .filter((p) => !STOPWORDS.has(semAcento(p)));
+  const palavras = bruto.replace(/\s+/g, " ").split(" ");
+  // remove stopwords apenas do começo e do fim, para não quebrar "bolos de festa"
+  while (palavras.length && STOPWORDS.has(semAcento(palavras[0]))) palavras.shift();
+  while (palavras.length && STOPWORDS.has(semAcento(palavras[palavras.length - 1]))) palavras.pop();
   const curta = palavras.slice(0, 3).join(" ");
   return capitalize(curta || bruto.split(" ").slice(0, 3).join(" "));
 }
@@ -135,8 +135,10 @@ export function categoriaCurta(answers) {
 export function marcaBase(answers) {
   const atual = (answers.nomeAtual || answers.nome || "").trim();
   if (atual) {
-    const limpo = atual.split(/[|\-•·]/)[0].trim();
-    const partes = limpo.split(/\s+/).filter((p) => !STOPWORDS.has(semAcento(p)));
+    const limpo = atual.split(/[|\-•·]/)[0].replace(/[._]+/g, " ").trim();
+    const partes = limpo
+      .split(/\s+/)
+      .filter((p) => !STOPWORDS.has(semAcento(p)) && !DESPERDICIO.includes(semAcento(p)));
     const candidata = partes[partes.length - 1] || partes[0];
     if (candidata && candidata.length >= 3) return capitalize(candidata);
   }
@@ -266,7 +268,7 @@ export function analisarNome(nome, answers) {
 function slug(s) {
   return semAcento(s)
     .replace(/[^a-z0-9]/g, "")
-    .slice(0, 18);
+    .slice(0, 16);
 }
 
 export function sugestoesDeArroba(answers) {
