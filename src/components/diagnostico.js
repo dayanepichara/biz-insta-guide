@@ -200,7 +200,9 @@ export function analisarNome(nome, answers) {
 
   const chaves = palavrasChave(answers);
   const nomeSemAcento = semAcento(texto);
-  const temCategoria = chaves.some((k) => nomeSemAcento.includes(k.slice(0, Math.max(4, k.length - 2))));
+  const temCategoria = chaves.some((k) =>
+    nomeSemAcento.includes(k.slice(0, Math.max(4, k.length - 2))),
+  );
   const longo = texto.length > 30;
   const curtoDemais = texto.length < 3;
   const generico = GENERICAS.some((g) => nomeSemAcento.includes(g));
@@ -319,7 +321,9 @@ export function analisarArroba(arroba, answers) {
   if (temCategoria)
     funcionando.push("Carrega uma palavra do seu negócio, o que ajuda quem procura por esse tema.");
   if (!comNumeros && !muitosSeparadores)
-    funcionando.push("Não tem números soltos nem excesso de pontos, então quase ninguém erra ao escrever.");
+    funcionando.push(
+      "Não tem números soltos nem excesso de pontos, então quase ninguém erra ao escrever.",
+    );
 
   if (longo)
     mudar.push(
@@ -449,11 +453,7 @@ export function versoesDeBio(a) {
   const onde = a.bioOndeNA ? "" : (a.bioOnde || "").trim();
   const cta = ctaTexto(a);
 
-  const v1 = [
-    `${capitalize(faz)}${quem ? ` para ${quem}` : ""}`,
-    onde ? `📍 ${onde}` : "",
-    cta,
-  ]
+  const v1 = [`${capitalize(faz)}${quem ? ` para ${quem}` : ""}`, onde ? `📍 ${onde}` : "", cta]
     .filter(Boolean)
     .join("\n");
 
@@ -519,7 +519,9 @@ export function analisarBio(bio, a) {
   const chaves = palavrasChave(a);
   const dizOqueFaz = chaves.some((k) => semAc.includes(k.slice(0, Math.max(4, k.length - 2))));
   const dizParaQuem = /\bpara\b|\bpra\b/.test(semAc);
-  const temCta = /whats|link|pedido|orcament|agende|peca|peça|chame|visite|compre|clique/.test(semAc);
+  const temCta = /whats|link|pedido|orcament|agende|peca|peça|chame|visite|compre|clique/.test(
+    semAc,
+  );
   const temLocal = /📍|\bem \w{3,}/.test(texto);
   const genericas = BIO_GENERICAS.filter((g) => semAc.includes(g));
   const longa = texto.length > 150;
@@ -538,7 +540,9 @@ export function analisarBio(bio, a) {
       "Ela não diz com todas as letras o que você vende. Quem nunca te viu não deveria precisar deduzir isso.",
     );
   if (!dizParaQuem)
-    mudar.push("Falta dizer para quem é. Quando a pessoa se reconhece na bio, ela continua no perfil.");
+    mudar.push(
+      "Falta dizer para quem é. Quando a pessoa se reconhece na bio, ela continua no perfil.",
+    );
   if (!temCta)
     mudar.push(
       "Não tem um próximo passo claro. Sem isso, a pessoa gosta do perfil, sai e não volta.",
