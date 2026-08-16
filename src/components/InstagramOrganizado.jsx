@@ -186,6 +186,10 @@ function safeClear() {
 }
 /* ---------------------------- Helpers de conteúdo ---------------------------- */ function capitalize(
   str,
+) {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 function temaDoNegocio(answers) {
   return (answers.oferece || answers.negocio || "").trim();
 }
