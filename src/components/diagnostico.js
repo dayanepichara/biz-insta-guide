@@ -135,7 +135,10 @@ export function categoriaCurta(answers) {
 export function marcaBase(answers) {
   const atual = (answers.nomeAtual || answers.nome || "").trim();
   if (atual) {
-    const limpo = atual.split(/[|\-•·]/)[0].replace(/[._]+/g, " ").trim();
+    const limpo = atual
+      .split(/[|\-•·]/)[0]
+      .replace(/[._]+/g, " ")
+      .trim();
     const partes = limpo
       .split(/\s+/)
       .filter((p) => !STOPWORDS.has(semAcento(p)) && !DESPERDICIO.includes(semAcento(p)));
