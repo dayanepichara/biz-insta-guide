@@ -344,9 +344,23 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
       });
       const data = await resp.json().catch(() => null);
       if (resp.ok && data && data.analise) {
+        // Guardamos apenas strings: nada fora do formato chega à tela.
+        const a = data.analise;
         patchAnswers({
           fotoIaUsada: true,
-          fotoAnalise: { analise: data.analise, data: new Date().toISOString() },
+          fotoAnalise: {
+            analise: {
+              aparece: asTexto(a.aparece),
+              avaliacao: asTexto(a.avaliacao),
+              comunicaNegocio: asTexto(a.comunicaNegocio),
+              funcionando: asLista(a.funcionando),
+              prejudica: asLista(a.prejudica),
+              mudar: asLista(a.mudar),
+              tipoIdeal: asTexto(a.tipoIdeal),
+              fotoIdeal: asTexto(a.fotoIdeal),
+            },
+            data: new Date().toISOString(),
+          },
         });
       } else if (resp.status === 502) {
         // A IA respondeu (consumo já aconteceu), mas fora do formato.
