@@ -33,6 +33,7 @@ import {
   M2Final,
 } from "./Modulo2.jsx";
 import FotoAnalise from "./FotoAnalise.jsx";
+import ErroTela from "./ErroTela.jsx";
 import {
   PerfilStatus,
   NomeAnalise,
