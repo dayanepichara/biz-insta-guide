@@ -524,29 +524,51 @@ export function PerfilRecomendado({ answers, onFinish }) {
       <div>
         <Eyebrow>Perfil organizado</Eyebrow>
         <Titulo>Seu perfil recomendado</Titulo>
+        <p className="text-[13.5px] text-neutral-500 leading-relaxed mb-4">
+          É assim que o seu perfil deveria aparecer para quem chega no seu Instagram.
+        </p>
+
+        {/* Prévia no formato de perfil */}
+        <div className="rounded-3xl border border-neutral-200 bg-white p-5 mb-4 shadow-[0_8px_24px_-20px_rgba(0,0,0,0.5)]">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 rounded-full bg-yellow-400 flex items-center justify-center flex-none">
+              <Instagram size={24} className="text-neutral-900" />
+            </div>
+            <div className="min-w-0">
+              <p
+                className="text-[15px] font-extrabold text-neutral-900 leading-snug break-words"
+                style={{ fontFamily: FONT_DISPLAY }}
+              >
+                {answers.nome || "—"}
+              </p>
+              <p className="text-[13px] text-neutral-500 break-words">{answers.arroba || "—"}</p>
+            </div>
+          </div>
+          <p className="text-[13.5px] text-neutral-800 leading-relaxed whitespace-pre-line mb-3">
+            {answers.bioFinal || "—"}
+          </p>
+          {(answers.destaquesSelecionados || []).length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-3 border-t border-neutral-100">
+              {answers.destaquesSelecionados.map((d) => (
+                <span
+                  key={d}
+                  className="px-2.5 py-1 rounded-full bg-neutral-50 border border-neutral-200 text-[11px] font-semibold text-neutral-600"
+                >
+                  {d}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Campos com cópia */}
         <div className="bg-white border border-neutral-200 rounded-2xl p-4 mb-4">
           <Campo rotulo="Nome" valor={answers.nome} chave="nome" />
           <Campo rotulo="@" valor={answers.arroba} chave="arroba" />
           <Campo rotulo="Foto de perfil" valor={fotoRec} />
           <Campo rotulo="Bio" valor={answers.bioFinal} chave="bio" />
-          {(answers.destaquesSelecionados || []).length > 0 && (
-            <div>
-              <p className="text-[11px] font-bold tracking-wide text-neutral-400 uppercase mb-1.5">
-                Destaques
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {answers.destaquesSelecionados.map((d) => (
-                  <span
-                    key={d}
-                    className="px-2.5 py-1 rounded-full bg-neutral-50 border border-neutral-200 text-[11px] font-semibold text-neutral-600"
-                  >
-                    {d}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
+
 
         {pendencias.length > 0 && (
           <Bloco titulo="Pontos que eu ainda ajustaria">
