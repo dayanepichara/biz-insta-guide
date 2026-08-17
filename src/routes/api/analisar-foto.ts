@@ -36,6 +36,25 @@ function extrairJson(texto: string) {
   }
 }
 
+function texto1(valor: unknown): string {
+  if (typeof valor === "string") return valor.trim();
+  if (typeof valor === "number" || typeof valor === "boolean") return String(valor);
+  if (Array.isArray(valor)) return valor.map(texto1).filter(Boolean).join(" ");
+  if (valor && typeof valor === "object") {
+    return Object.values(valor as Record<string, unknown>)
+      .map(texto1)
+      .filter(Boolean)
+      .join(" ");
+  }
+  return "";
+}
+
+function lista(valor: unknown): string[] {
+  if (Array.isArray(valor)) return valor.map(texto1).filter(Boolean);
+  const t = texto1(valor);
+  return t ? [t] : [];
+}
+
 export const Route = createFileRoute("/api/analisar-foto")({
   server: {
     handlers: {
