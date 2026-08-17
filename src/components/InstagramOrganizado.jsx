@@ -791,6 +791,7 @@ const AREA_POR_PERGUNTA = {
             />
           )}{" "}
           {screen === "m2Final" && <M2Final answers={answers} onReset={resetModule2} />}{" "}
+        </ErroTela>{" "}
         </div>{" "}
       </div>{" "}
       {showResetConfirm && (
