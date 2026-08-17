@@ -27,14 +27,16 @@ function Botao({ children, onClick, disabled }) {
 
 function Eyebrow({ children }) {
   return (
-    <p className="text-[11px] font-bold tracking-wide text-yellow-600 uppercase mb-2">{children}</p>
+    <p className="text-[10.5px] font-extrabold tracking-[0.14em] text-yellow-600 uppercase mb-2.5">
+      {children}
+    </p>
   );
 }
 
 function Titulo({ children }) {
   return (
     <h2
-      className="text-[19px] font-extrabold text-neutral-900 mb-3 leading-snug"
+      className="text-[20px] font-extrabold text-neutral-900 mb-3 leading-[1.25] tracking-tight"
       style={{ fontFamily: FONT_DISPLAY }}
     >
       {children}
@@ -42,12 +44,18 @@ function Titulo({ children }) {
   );
 }
 
+/* tom: "amarelo" = recomendação (destaque) | padrão = análise (neutro) */
 function Bloco({ titulo, children, tom }) {
-  const cor = tom === "amarelo" ? "bg-yellow-50 border-yellow-200" : "bg-white border-neutral-200";
+  const destaque = tom === "amarelo";
+  const cor = destaque
+    ? "bg-yellow-50 border-yellow-300 shadow-[0_2px_10px_-6px_rgba(161,98,7,0.35)]"
+    : "bg-neutral-50/70 border-neutral-200";
   return (
-    <div className={`${cor} border rounded-2xl p-4 mb-3`}>
+    <div className={`${cor} border rounded-2xl p-4 mb-2.5`}>
       <p
-        className="text-[11px] font-bold tracking-wide text-neutral-500 uppercase mb-2"
+        className={`text-[10.5px] font-extrabold tracking-[0.12em] uppercase mb-2 ${
+          destaque ? "text-yellow-700" : "text-neutral-400"
+        }`}
         style={{ fontFamily: FONT_DISPLAY }}
       >
         {titulo}
@@ -81,17 +89,18 @@ function Opcao({ ativo, titulo, descricao, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left px-4 py-3 rounded-2xl border transition-all ${
+      className={`w-full text-left px-4 py-3.5 rounded-2xl border transition-all active:scale-[0.99] ${
         ativo
-          ? "bg-yellow-400 border-yellow-400 text-neutral-900"
-          : "bg-neutral-50 border-neutral-200 text-neutral-700 hover:border-neutral-300"
+          ? "bg-yellow-400 border-yellow-400 text-neutral-900 shadow-[0_4px_14px_-8px_rgba(161,98,7,0.6)]"
+          : "bg-white border-neutral-200 text-neutral-700 hover:border-neutral-300"
       }`}
     >
       <p className="text-[13.5px] font-bold leading-snug">{titulo}</p>
-      {descricao && <p className="text-[11.5px] opacity-70 mt-0.5 leading-snug">{descricao}</p>}
+      {descricao && <p className="text-[12px] opacity-70 mt-1 leading-snug">{descricao}</p>}
     </button>
   );
 }
+
 
 /* ------------------- 1. Como está seu Instagram ------------------- */
 
