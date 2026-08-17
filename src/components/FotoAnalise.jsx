@@ -512,36 +512,44 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
         {analise && (
           <>
             <Bloco titulo="Análise da sua foto">
-              {analise.aparece && (
+              {asTexto(analise.aparece) && (
                 <p className="text-[13.5px] text-neutral-700 leading-relaxed mb-2">
-                  {analise.aparece}
+                  {asTexto(analise.aparece)}
                 </p>
               )}
-              {analise.avaliacao && (
+              {asTexto(analise.avaliacao) && (
                 <p className="text-[13.5px] text-neutral-700 leading-relaxed">
-                  {analise.avaliacao}
+                  {asTexto(analise.avaliacao)}
                 </p>
               )}
-              {analise.comunicaNegocio && (
+              {asTexto(analise.comunicaNegocio) && (
                 <p className="text-[13.5px] text-neutral-700 leading-relaxed mt-2">
-                  {analise.comunicaNegocio}
+                  {asTexto(analise.comunicaNegocio)}
                 </p>
               )}
             </Bloco>
-            <Bloco titulo="O que está funcionando">
-              <Lista itens={analise.funcionando} />
-            </Bloco>
-            <Bloco titulo="O que eu mudaria">
-              <Lista itens={[...(analise.prejudica || []), ...(analise.mudar || [])]} />
-            </Bloco>
-            <Bloco titulo="A foto que eu usaria no seu lugar">
-              {analise.tipoIdeal && (
-                <p className="text-[13.5px] font-semibold text-neutral-800 leading-relaxed mb-2">
-                  {analise.tipoIdeal}
+            {asLista(analise.funcionando).length > 0 && (
+              <Bloco titulo="O que está funcionando">
+                <Lista itens={analise.funcionando} />
+              </Bloco>
+            )}
+            {[...asLista(analise.prejudica), ...asLista(analise.mudar)].length > 0 && (
+              <Bloco titulo="O que eu mudaria">
+                <Lista itens={[...asLista(analise.prejudica), ...asLista(analise.mudar)]} />
+              </Bloco>
+            )}
+            {(asTexto(analise.tipoIdeal) || asTexto(analise.fotoIdeal)) && (
+              <Bloco titulo="A foto que eu usaria no seu lugar">
+                {asTexto(analise.tipoIdeal) && (
+                  <p className="text-[13.5px] font-semibold text-neutral-800 leading-relaxed mb-2">
+                    {asTexto(analise.tipoIdeal)}
+                  </p>
+                )}
+                <p className="text-[13.5px] text-neutral-700 leading-relaxed">
+                  {asTexto(analise.fotoIdeal)}
                 </p>
-              )}
-              <p className="text-[13.5px] text-neutral-700 leading-relaxed">{analise.fotoIdeal}</p>
-            </Bloco>
+              </Bloco>
+            )}
           </>
         )}
       </div>
