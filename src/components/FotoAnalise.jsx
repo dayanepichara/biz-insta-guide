@@ -371,9 +371,14 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
           "A análise com IA está indisponível agora. Sua checagem técnica abaixo continua valendo.",
         );
       }
-    } catch {
-      setErro("Sem conexão com a análise de IA. Sua checagem técnica abaixo continua valendo.");
+    } catch (e) {
+      setErro(
+        e && e.name === "AbortError"
+          ? "A análise demorou demais para responder. Sua checagem técnica abaixo continua valendo."
+          : "Sem conexão com a análise de IA. Sua checagem técnica abaixo continua valendo.",
+      );
     } finally {
+      if (timer) clearTimeout(timer);
       setCarregando(false);
       emCurso.current = false;
     }
