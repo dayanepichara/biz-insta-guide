@@ -321,10 +321,13 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
     emCurso.current = true;
     setCarregando(true);
     setErro("");
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timer = controller ? setTimeout(() => controller.abort(), 45000) : null;
     try {
       const resp = await fetch("/api/analisar-foto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller ? controller.signal : undefined,
         body: JSON.stringify({
           imagem: imagemB64,
           tecnica: local?.tecnicaTexto || "",
