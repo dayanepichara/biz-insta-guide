@@ -33,6 +33,7 @@ import {
   M2Final,
 } from "./Modulo2.jsx";
 import FotoAnalise from "./FotoAnalise.jsx";
+import ErroTela from "./ErroTela.jsx";
 import {
   PerfilStatus,
   NomeAnalise,
@@ -540,7 +541,7 @@ const AREA_POR_PERGUNTA = {
         </div>{" "}
         {/* Content */}{" "}
         <div key={screen} className="io-anim io-scroll flex-1 overflow-y-auto px-5 py-6">
-          {" "}
+          <ErroTela resetKey={screen}>{" "}
           {screen === "welcome" && <Welcome onStart={() => goTo("q1")} />}{" "}
           {screen === "q1" && (
             <QuestionText
@@ -791,6 +792,7 @@ const AREA_POR_PERGUNTA = {
             />
           )}{" "}
           {screen === "m2Final" && <M2Final answers={answers} onReset={resetModule2} />}{" "}
+        </ErroTela>{" "}
         </div>{" "}
       </div>{" "}
       {showResetConfirm && (

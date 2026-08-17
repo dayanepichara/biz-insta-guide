@@ -36,6 +36,25 @@ function extrairJson(texto: string) {
   }
 }
 
+function texto1(valor: unknown): string {
+  if (typeof valor === "string") return valor.trim();
+  if (typeof valor === "number" || typeof valor === "boolean") return String(valor);
+  if (Array.isArray(valor)) return valor.map(texto1).filter(Boolean).join(" ");
+  if (valor && typeof valor === "object") {
+    return Object.values(valor as Record<string, unknown>)
+      .map(texto1)
+      .filter(Boolean)
+      .join(" ");
+  }
+  return "";
+}
+
+function lista(valor: unknown): string[] {
+  if (Array.isArray(valor)) return valor.map(texto1).filter(Boolean);
+  const t = texto1(valor);
+  return t ? [t] : [];
+}
+
 export const Route = createFileRoute("/api/analisar-foto")({
   server: {
     handlers: {
@@ -131,14 +150,39 @@ Responda SOMENTE com um objeto json com exatamente estas chaves:
           return json({ erro: "ia_indisponivel" }, 503);
         }
 
-        const data = (await resp.json()) as {
-          choices?: Array<{ message?: { content?: string } }>;
-        };
+        let data: { choices?: Array<{ message?: { content?: string } }> };
+        try {
+          data = (await resp.json()) as { choices?: Array<{ message?: { content?: string } }> };
+        } catch {
+          return json({ erro: "resposta_invalida" }, 502);
+        }
         const texto = data.choices?.[0]?.message?.content ?? "";
         const parsed = extrairJson(texto);
-        if (!parsed) return json({ erro: "resposta_invalida" }, 502);
+        if (!parsed || typeof parsed !== "object") return json({ erro: "resposta_invalida" }, 502);
 
-        return json({ analise: parsed });
+        // A IA pode devolver objetos, números ou strings onde esperamos texto/listas.
+        // Normalizamos aqui para que a tela só receba strings — assim nenhuma
+        // resposta fora do formato consegue derrubar o aplicativo.
+        const analise = {
+          aparece: texto1(parsed["aparece"]),
+          avaliacao: texto1(parsed["avaliacao"]),
+          funcionando: lista(parsed["funcionando"]),
+          prejudica: lista(parsed["prejudica"]),
+          comunicaNegocio: texto1(parsed["comunicaNegocio"]),
+          mudar: lista(parsed["mudar"]),
+          tipoIdeal: texto1(parsed["tipoIdeal"]),
+          fotoIdeal: texto1(parsed["fotoIdeal"]),
+        };
+
+        const temConteudo =
+          analise.avaliacao ||
+          analise.fotoIdeal ||
+          analise.funcionando.length > 0 ||
+          analise.prejudica.length > 0 ||
+          analise.mudar.length > 0;
+        if (!temConteudo) return json({ erro: "resposta_invalida" }, 502);
+
+        return json({ analise });
       },
     },
   },

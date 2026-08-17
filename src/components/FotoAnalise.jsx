@@ -47,11 +47,29 @@ function Bloco({ titulo, children }) {
   );
 }
 
+/* A resposta da IA é texto livre: nunca renderizamos o valor cru.
+   Estes dois helpers garantem que só strings cheguem ao React. */
+export function asTexto(v) {
+  if (typeof v === "string") return v.trim();
+  if (typeof v === "number" || typeof v === "boolean") return String(v);
+  if (Array.isArray(v)) return v.map(asTexto).filter(Boolean).join(" ");
+  if (v && typeof v === "object")
+    return Object.values(v).map(asTexto).filter(Boolean).join(" ");
+  return "";
+}
+
+export function asLista(v) {
+  if (Array.isArray(v)) return v.map(asTexto).filter(Boolean);
+  const t = asTexto(v);
+  return t ? [t] : [];
+}
+
 function Lista({ itens }) {
-  if (!itens || itens.length === 0) return null;
+  const lista = asLista(itens);
+  if (lista.length === 0) return null;
   return (
     <ul className="flex flex-col gap-1.5">
-      {itens.map((t, i) => (
+      {lista.map((t, i) => (
         <li key={i} className="flex gap-2 text-[13.5px] text-neutral-700 leading-relaxed">
           <span className="text-yellow-500 font-bold leading-[1.4]">•</span>
           <span>{t}</span>
@@ -303,10 +321,13 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
     emCurso.current = true;
     setCarregando(true);
     setErro("");
+    const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timer = controller ? setTimeout(() => controller.abort(), 45000) : null;
     try {
       const resp = await fetch("/api/analisar-foto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller ? controller.signal : undefined,
         body: JSON.stringify({
           imagem: imagemB64,
           tecnica: local?.tecnicaTexto || "",
@@ -323,9 +344,23 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
       });
       const data = await resp.json().catch(() => null);
       if (resp.ok && data && data.analise) {
+        // Guardamos apenas strings: nada fora do formato chega à tela.
+        const a = data.analise;
         patchAnswers({
           fotoIaUsada: true,
-          fotoAnalise: { analise: data.analise, data: new Date().toISOString() },
+          fotoAnalise: {
+            analise: {
+              aparece: asTexto(a.aparece),
+              avaliacao: asTexto(a.avaliacao),
+              comunicaNegocio: asTexto(a.comunicaNegocio),
+              funcionando: asLista(a.funcionando),
+              prejudica: asLista(a.prejudica),
+              mudar: asLista(a.mudar),
+              tipoIdeal: asTexto(a.tipoIdeal),
+              fotoIdeal: asTexto(a.fotoIdeal),
+            },
+            data: new Date().toISOString(),
+          },
         });
       } else if (resp.status === 502) {
         // A IA respondeu (consumo já aconteceu), mas fora do formato.
@@ -336,9 +371,14 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
           "A análise com IA está indisponível agora. Sua checagem técnica abaixo continua valendo.",
         );
       }
-    } catch {
-      setErro("Sem conexão com a análise de IA. Sua checagem técnica abaixo continua valendo.");
+    } catch (e) {
+      setErro(
+        e && e.name === "AbortError"
+          ? "A análise demorou demais para responder. Sua checagem técnica abaixo continua valendo."
+          : "Sem conexão com a análise de IA. Sua checagem técnica abaixo continua valendo.",
+      );
     } finally {
+      if (timer) clearTimeout(timer);
       setCarregando(false);
       emCurso.current = false;
     }
@@ -472,36 +512,44 @@ export default function FotoAnalise({ answers, patchAnswers, onFinish }) {
         {analise && (
           <>
             <Bloco titulo="Análise da sua foto">
-              {analise.aparece && (
+              {asTexto(analise.aparece) && (
                 <p className="text-[13.5px] text-neutral-700 leading-relaxed mb-2">
-                  {analise.aparece}
+                  {asTexto(analise.aparece)}
                 </p>
               )}
-              {analise.avaliacao && (
+              {asTexto(analise.avaliacao) && (
                 <p className="text-[13.5px] text-neutral-700 leading-relaxed">
-                  {analise.avaliacao}
+                  {asTexto(analise.avaliacao)}
                 </p>
               )}
-              {analise.comunicaNegocio && (
+              {asTexto(analise.comunicaNegocio) && (
                 <p className="text-[13.5px] text-neutral-700 leading-relaxed mt-2">
-                  {analise.comunicaNegocio}
+                  {asTexto(analise.comunicaNegocio)}
                 </p>
               )}
             </Bloco>
-            <Bloco titulo="O que está funcionando">
-              <Lista itens={analise.funcionando} />
-            </Bloco>
-            <Bloco titulo="O que eu mudaria">
-              <Lista itens={[...(analise.prejudica || []), ...(analise.mudar || [])]} />
-            </Bloco>
-            <Bloco titulo="A foto que eu usaria no seu lugar">
-              {analise.tipoIdeal && (
-                <p className="text-[13.5px] font-semibold text-neutral-800 leading-relaxed mb-2">
-                  {analise.tipoIdeal}
+            {asLista(analise.funcionando).length > 0 && (
+              <Bloco titulo="O que está funcionando">
+                <Lista itens={analise.funcionando} />
+              </Bloco>
+            )}
+            {[...asLista(analise.prejudica), ...asLista(analise.mudar)].length > 0 && (
+              <Bloco titulo="O que eu mudaria">
+                <Lista itens={[...asLista(analise.prejudica), ...asLista(analise.mudar)]} />
+              </Bloco>
+            )}
+            {(asTexto(analise.tipoIdeal) || asTexto(analise.fotoIdeal)) && (
+              <Bloco titulo="A foto que eu usaria no seu lugar">
+                {asTexto(analise.tipoIdeal) && (
+                  <p className="text-[13.5px] font-semibold text-neutral-800 leading-relaxed mb-2">
+                    {asTexto(analise.tipoIdeal)}
+                  </p>
+                )}
+                <p className="text-[13.5px] text-neutral-700 leading-relaxed">
+                  {asTexto(analise.fotoIdeal)}
                 </p>
-              )}
-              <p className="text-[13.5px] text-neutral-700 leading-relaxed">{analise.fotoIdeal}</p>
-            </Bloco>
+              </Bloco>
+            )}
           </>
         )}
       </div>
