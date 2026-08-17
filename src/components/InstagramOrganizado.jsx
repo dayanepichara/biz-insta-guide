@@ -540,7 +540,7 @@ const AREA_POR_PERGUNTA = {
         </div>{" "}
         {/* Content */}{" "}
         <div key={screen} className="io-anim io-scroll flex-1 overflow-y-auto px-5 py-6">
-          {" "}
+          <ErroTela resetKey={screen}>{" "}
           {screen === "welcome" && <Welcome onStart={() => goTo("q1")} />}{" "}
           {screen === "q1" && (
             <QuestionText
