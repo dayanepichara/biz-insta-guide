@@ -447,14 +447,17 @@ const AREA_POR_PERGUNTA = {
     setScreen(nextScreen);
   }
   function resetAll() {
+    // Apaga somente a chave deste aplicativo (nunca localStorage.clear()).
     safeClear();
-    setAnswers(DEFAULT_ANSWERS);
-    setProgress(DEFAULT_PROGRESS);
+    setAnswers({ ...DEFAULT_ANSWERS, m2: { ...DEFAULT_M2 } });
+    setProgress({ ...DEFAULT_PROGRESS });
     setHistory([]);
     setJustCompleted(false);
+    setLastCompletedLabel("");
     setShowResetConfirm(false);
     setScreen("welcome");
   }
+
   const progressInfo = useMemo(() => {
     for (const group of STEP_GROUPS) {
       const i = group.steps.indexOf(screen);
