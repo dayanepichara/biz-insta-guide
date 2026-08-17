@@ -47,11 +47,29 @@ function Bloco({ titulo, children }) {
   );
 }
 
+/* A resposta da IA é texto livre: nunca renderizamos o valor cru.
+   Estes dois helpers garantem que só strings cheguem ao React. */
+export function asTexto(v) {
+  if (typeof v === "string") return v.trim();
+  if (typeof v === "number" || typeof v === "boolean") return String(v);
+  if (Array.isArray(v)) return v.map(asTexto).filter(Boolean).join(" ");
+  if (v && typeof v === "object")
+    return Object.values(v).map(asTexto).filter(Boolean).join(" ");
+  return "";
+}
+
+export function asLista(v) {
+  if (Array.isArray(v)) return v.map(asTexto).filter(Boolean);
+  const t = asTexto(v);
+  return t ? [t] : [];
+}
+
 function Lista({ itens }) {
-  if (!itens || itens.length === 0) return null;
+  const lista = asLista(itens);
+  if (lista.length === 0) return null;
   return (
     <ul className="flex flex-col gap-1.5">
-      {itens.map((t, i) => (
+      {lista.map((t, i) => (
         <li key={i} className="flex gap-2 text-[13.5px] text-neutral-700 leading-relaxed">
           <span className="text-yellow-500 font-bold leading-[1.4]">•</span>
           <span>{t}</span>
