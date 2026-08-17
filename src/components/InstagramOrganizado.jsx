@@ -1086,7 +1086,7 @@ function ResetConfirmModal({ onCancel, onConfirm }) {
             style={{ fontFamily: FONT_DISPLAY }}
           >
             {" "}
-            Recomeçar tudo?{" "}
+            Recomeçar seu planejamento?{" "}
           </p>{" "}
           <button onClick={onCancel} className="text-neutral-400 hover:text-neutral-600">
             {" "}
@@ -1095,25 +1095,26 @@ function ResetConfirmModal({ onCancel, onConfirm }) {
         </div>{" "}
         <p className="text-[13.5px] text-neutral-500 leading-relaxed mb-6">
           {" "}
-          Isso vai apagar todas as respostas e o progresso salvo neste dispositivo. Essa ação não
-          pode ser desfeita.{" "}
+          Isso vai apagar todas as suas respostas e recomeçar o Módulo 1 e o Módulo 2 do zero. Essa
+          ação não pode ser desfeita.{" "}
         </p>{" "}
         <div className="flex flex-col gap-2">
           {" "}
           <button
             onClick={onConfirm}
-            className="w-full bg-neutral-900 text-white font-bold text-[14px] py-3 rounded-2xl"
+            className="w-full bg-neutral-900 text-white font-bold text-[14px] py-3.5 rounded-2xl active:scale-[0.98] transition-transform"
           >
             {" "}
-            Sim, recomeçar{" "}
+            SIM, RECOMEÇAR{" "}
           </button>{" "}
           <button
             onClick={onCancel}
-            className="w-full bg-neutral-100 text-neutral-700 font-bold text-[14px] py-3 rounded-2xl"
+            className="w-full bg-neutral-100 text-neutral-700 font-bold text-[14px] py-3.5 rounded-2xl active:scale-[0.98] transition-transform"
           >
             {" "}
-            Cancelar{" "}
+            CANCELAR{" "}
           </button>{" "}
+
         </div>{" "}
       </div>{" "}
     </div>
