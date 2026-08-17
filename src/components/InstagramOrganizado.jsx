@@ -447,14 +447,17 @@ const AREA_POR_PERGUNTA = {
     setScreen(nextScreen);
   }
   function resetAll() {
+    // Apaga somente a chave deste aplicativo (nunca localStorage.clear()).
     safeClear();
-    setAnswers(DEFAULT_ANSWERS);
-    setProgress(DEFAULT_PROGRESS);
+    setAnswers({ ...DEFAULT_ANSWERS, m2: { ...DEFAULT_M2 } });
+    setProgress({ ...DEFAULT_PROGRESS });
     setHistory([]);
     setJustCompleted(false);
+    setLastCompletedLabel("");
     setShowResetConfirm(false);
     setScreen("welcome");
   }
+
   const progressInfo = useMemo(() => {
     for (const group of STEP_GROUPS) {
       const i = group.steps.indexOf(screen);
@@ -513,9 +516,20 @@ const AREA_POR_PERGUNTA = {
                 <p className="text-[11px] text-neutral-400 truncate">{progressInfo.label}</p>
               )}{" "}
             </div>{" "}
+            {screen !== "welcome" && (
+              <button
+                onClick={() => setShowResetConfirm(true)}
+                className="w-8 h-8 flex-none flex items-center justify-center rounded-full bg-neutral-50 hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"
+                aria-label="Recomeçar meu planejamento"
+                title="Recomeçar meu planejamento"
+              >
+                <RotateCcw size={14} />
+              </button>
+            )}{" "}
           </div>{" "}
           {progressInfo && (
             <div className="mt-3 h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden">
+
               {" "}
               <div
                 className="h-full bg-yellow-400 rounded-full transition-all duration-300"
@@ -1072,7 +1086,7 @@ function ResetConfirmModal({ onCancel, onConfirm }) {
             style={{ fontFamily: FONT_DISPLAY }}
           >
             {" "}
-            Recomeçar tudo?{" "}
+            Recomeçar seu planejamento?{" "}
           </p>{" "}
           <button onClick={onCancel} className="text-neutral-400 hover:text-neutral-600">
             {" "}
@@ -1081,25 +1095,26 @@ function ResetConfirmModal({ onCancel, onConfirm }) {
         </div>{" "}
         <p className="text-[13.5px] text-neutral-500 leading-relaxed mb-6">
           {" "}
-          Isso vai apagar todas as respostas e o progresso salvo neste dispositivo. Essa ação não
-          pode ser desfeita.{" "}
+          Isso vai apagar todas as suas respostas e recomeçar o Módulo 1 e o Módulo 2 do zero. Essa
+          ação não pode ser desfeita.{" "}
         </p>{" "}
         <div className="flex flex-col gap-2">
           {" "}
           <button
             onClick={onConfirm}
-            className="w-full bg-neutral-900 text-white font-bold text-[14px] py-3 rounded-2xl"
+            className="w-full bg-neutral-900 text-white font-bold text-[14px] py-3.5 rounded-2xl active:scale-[0.98] transition-transform"
           >
             {" "}
-            Sim, recomeçar{" "}
+            SIM, RECOMEÇAR{" "}
           </button>{" "}
           <button
             onClick={onCancel}
-            className="w-full bg-neutral-100 text-neutral-700 font-bold text-[14px] py-3 rounded-2xl"
+            className="w-full bg-neutral-100 text-neutral-700 font-bold text-[14px] py-3.5 rounded-2xl active:scale-[0.98] transition-transform"
           >
             {" "}
-            Cancelar{" "}
+            CANCELAR{" "}
           </button>{" "}
+
         </div>{" "}
       </div>{" "}
     </div>
