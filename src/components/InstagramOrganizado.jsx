@@ -516,9 +516,20 @@ const AREA_POR_PERGUNTA = {
                 <p className="text-[11px] text-neutral-400 truncate">{progressInfo.label}</p>
               )}{" "}
             </div>{" "}
+            {screen !== "welcome" && (
+              <button
+                onClick={() => setShowResetConfirm(true)}
+                className="w-8 h-8 flex-none flex items-center justify-center rounded-full bg-neutral-50 hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"
+                aria-label="Recomeçar meu planejamento"
+                title="Recomeçar meu planejamento"
+              >
+                <RotateCcw size={14} />
+              </button>
+            )}{" "}
           </div>{" "}
           {progressInfo && (
             <div className="mt-3 h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden">
+
               {" "}
               <div
                 className="h-full bg-yellow-400 rounded-full transition-all duration-300"
